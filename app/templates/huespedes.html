@@ -1,0 +1,100 @@
+{% extends "index.html" %}
+{% block content %}
+
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        Nuevo Huésped
+    </div>
+    <div class="card-body">
+
+        <form method="post" class="row g-3">
+            <div class="col-md-4">
+                <input name="nombre" class="form-control" placeholder="Nombre" required>
+            </div>
+            <div class="col-md-4">
+                <input name="apellidoP" class="form-control" placeholder="Apellido P" required>
+            </div>
+            <div class="col-md-4">
+                <input name="apellidoM" class="form-control" placeholder="Apellido M" required>
+            </div>
+
+            <div class="col-md-4">
+                <input name="identificacion" class="form-control"
+                       placeholder="Identificación" required minlength="5">
+            </div>
+
+            <div class="col-md-4">
+                <input type="email" name="email" class="form-control"
+                       placeholder="Correo" required>
+            </div>
+
+            <div class="col-md-4">
+                <input type="tel" name="telefono" class="form-control"
+                       pattern="[0-9]{8,15}" placeholder="Teléfono" required>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-success">Guardar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<div class="card">
+
+    <form method="get" class="row g-2 mb-3">
+    <div class="col-md-10">
+        <input type="text"
+               class="form-control"
+               name="buscar"
+               placeholder="Buscar por identificación o email"
+               value="{{ buscar or '' }}">
+    </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Buscar</button>
+    </div>
+        </form>
+</div>
+
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        Listado de Huéspedes
+    </div>
+    <div class="card-body">
+
+        {% if huespedes|length == 0 %}
+            <div class="alert alert-warning text-center">
+                No hay huéspedes registrados
+            </div>
+        {% else %}
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in huespedes %}
+                <tr>
+                    <td>{{ h.nombre }} {{ h.apellidoP }}</td>
+                    <td>{{ h.email }}</td>
+                    <td>{{ h.telefono }}</td>
+                    <td>
+                        <a href="/huespedes/editar/{{ h.id_huesped }}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="/huespedes/eliminar/{{ h.id_huesped }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('¿Eliminar huésped?')">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

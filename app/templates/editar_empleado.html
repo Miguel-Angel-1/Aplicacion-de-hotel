@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+{% block content %}
+
+<div class="card">
+    <div class="card-header bg-warning">
+        Editar Empleado
+    </div>
+    <div class="card-body">
+
+        <form method="post" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" name="nombre" class="form-control"
+                       value="{{ empleado.nombre }}" required>
+            </div>
+
+            <div class="col-md-6">
+                <input type="text" name="puesto" class="form-control"
+                       value="{{ empleado.puesto }}" required>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-primary">Actualizar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

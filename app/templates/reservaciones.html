@@ -1,0 +1,99 @@
+{% extends "index.html" %}
+{% block content %}
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        Nueva Reservación
+    </div>
+    <div class="card-body">
+
+        <form method="post" class="row g-3">
+            <div class="col-md-3">
+                <input type="number" name="id_huesped" class="form-control"
+                       placeholder="ID Huésped" required min="1">
+            </div>
+
+            <div class="col-md-3">
+                <input type="number" name="id_empleado" class="form-control"
+                       placeholder="ID Empleado" required min="1">
+            </div>
+
+            <div class="col-md-3">
+                <input type="number" name="num_habitacion" class="form-control"
+                       placeholder="Habitación" required min="1">
+            </div>
+
+            <div class="col-md-3">
+                <input type="number" step="0.01" name="precio" class="form-control"
+                       placeholder="Precio" required>
+            </div>
+
+            <div class="col-md-6">
+                <input type="date" name="fecha_inicio" class="form-control" required>
+            </div>
+
+            <div class="col-md-6">
+                <input type="date" name="fecha_fin" class="form-control" required>
+            </div>
+
+            <div class="col-12">
+                <input type="text" name="detalles" class="form-control"
+                       placeholder="Detalles" required>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-success">Guardar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+
+<div class="card">
+    
+</div>
+
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        Listado de Reservaciones
+    </div>
+    <div class="card-body">
+
+        {% if reservaciones|length == 0 %}
+            <div class="alert alert-warning text-center">
+                No hay reservaciones registradas
+            </div>
+        {% else %}
+        <table class="table table-hover text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Huésped</th>
+                    <th>Habitación</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reservaciones %}
+                <tr>
+                    <td>{{ r.nombre_huesped }}</td>
+                    <td>{{ r.num_habitacion }}</td>
+                    <td>{{ r.fecha_inicio }}</td>
+                    <td>{{ r.fecha_fin }}</td>
+                    <td>
+                        <a href="/reservaciones/editar/{{ r.id_reservacion }}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="/reservaciones/eliminar/{{ r.id_reservacion }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('¿Eliminar reservación?')">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
