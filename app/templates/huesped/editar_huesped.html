@@ -1,0 +1,86 @@
+{% extends "index.html" %}
+{% block content %}
+
+<div class="card bg-white border-secondary mb-2">
+
+    <div class="card-header bg-black border-secondary text-white fw-semibold">
+        Editar Huésped
+    </div>
+
+    <div class="card-body">
+        <form method="POST" class="row g-3">
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Nombre
+                </label>
+
+                <input type="text" name="nombre" class="form-control bg-light border-secondary text-black"
+                    value="{{ huesped.nombre }}" placeholder="Ingrese el nombre del huésped" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Apellido Paterno
+                </label>
+
+                <input type="text" name="apellidoP" class="form-control bg-light border-secondary text-black"
+                    value="{{ huesped.apellidoP }}" placeholder="Ingrese el apellido paterno" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Apellido Materno
+                </label>
+
+                <input type="text" name="apellidoM" class="form-control bg-light border-secondary text-black"
+                    value="{{ huesped.apellidoM }}" placeholder="Ingrese el apellido materno" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Identificación
+                </label>
+
+                <input type="text" name="identificacion" class="form-control bg-light border-secondary text-black"
+                    value="{{ huesped.identificacion }}" placeholder="Ejemplo: INE, Pasaporte o Licencia" required
+                    minlength="5">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Correo Electrónico
+                </label>
+
+                <input type="email" name="email" class="form-control bg-light border-secondary text-black"
+                    value="{{ huesped.email }}" placeholder="Ingrese el correo electrónico" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Teléfono
+                </label>
+
+                <input type="tel" name="telefono" class="form-control bg-light border-secondary text-black"
+                    value="{{ huesped.telefono }}" placeholder="Ingrese el número telefónico" pattern="[0-9]{8,15}"
+                    required>
+            </div>
+
+            <div class="col-md-12 d-flex justify-content-end align-items-end gap-2">
+                <button class="btn btn-dark text-white fw-semibold border-secondary start">
+                    <i class="fa-solid fa-floppy-disk me-1"></i>
+                    Actualizar
+                </button>
+
+                <a href="{{ url_for('huespedes') }}" class="btn btn-outline-secondary fw-semibold">
+                    <i class="fa-solid fa-xmark me-1"></i>
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

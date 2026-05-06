@@ -1,0 +1,356 @@
+{% extends "index.html" %}
+{% block content %}
+
+{% if session["rol"] == "Recepcionista" %}
+<div class="card bg-white border-secondary mb-2">
+
+    <div class="card-header bg-black border-secondary text-white fw-semibold">
+        Nueva Reservación
+    </div>
+
+    <div class="card-body">
+        <form method="POST" class="row g-3">
+
+            <div class="col-md-6">
+
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Identificación
+                </label>
+
+                <select name="id_huesped" id="id_huesped" class="form-select bg-light border-secondary text-black"
+                    required>
+
+                    <option value="">
+                        Buscar huésped por identificación
+                    </option>
+
+                    {% for h in huespedes %}
+                    <option value="{{ h.id_huesped }}" data-nombre="{{ h.nombre }} {{ h.apellidoP }}"
+                        data-telefono="{{ h.telefono }}" data-email="{{ h.email }}">
+
+                        {{ h.identificacion }}
+
+                    </option>
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Huésped
+                </label>
+
+                <input type="text" id="nombre_huesped" class="form-control bg-light border-secondary text-black"
+                    readonly>
+
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Fecha Inicio
+                </label>
+
+                <input type="date" name="fecha_inicio" id="fecha_inicio"
+                    class="form-control bg-light border-secondary text-black" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Fecha Fin
+                </label>
+
+                <input type="date" name="fecha_fin" id="fecha_fin"
+                    class="form-control bg-light border-secondary text-black" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Noches
+                </label>
+
+                <input type="text" id="noches" class="form-control bg-light border-secondary text-black" readonly>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Habitación Disponible
+                </label>
+
+                <select name="num_habitacion" id="habitacion" class="form-select bg-light border-secondary text-black"
+                    required>
+
+                    <option value="">
+                        Seleccione fechas primero
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Tipo Habitación
+                </label>
+
+                <input type="text" id="tipo" class="form-control bg-light border-secondary text-black" readonly>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Precio por Noche
+                </label>
+
+                <input type="text" id="precio_noche" class="form-control bg-light border-secondary text-black" readonly>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Total
+                </label>
+
+                <input type="text" name="precio" id="total" class="form-control bg-light border-secondary text-black"
+                    readonly>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label text-muted mb-1 fw-semibold">
+                    Detalles
+                </label>
+
+                <textarea name="detalles" class="form-control bg-light border-secondary text-black" rows="3"
+                    placeholder="Ingrese observaciones adicionales"></textarea>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end">
+                <button class="btn btn-dark text-white fw-semibold rounded-3 px-4">
+                    <i class="fa-solid fa-floppy-disk me-1"></i>
+                    Guardar
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+{% endif %}
+
+<div class="card bg-white border-secondary mb-2">
+    <div class="card-body py-3">
+
+        <form method="GET">
+            <div class="row g-2 align-items-center">
+
+                <div class="col-md-7">
+                    <input type="text" name="buscar" class="form-control bg-light border-secondary text-black"
+                        placeholder="Buscar por huésped, ID o habitación" value="{{ request.args.get('buscar','') }}">
+                </div>
+
+                <div class="col-md-2">
+                    <div class="dropdown w-100">
+                        <button type="button"
+                            class="btn btn-outline-dark w-100 rounded-3 d-flex align-items-center justify-content-center gap-2"
+                            data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                            <i class="fa-solid fa-sliders" style="font-size:13px;"></i>
+                            <span>Filtros</span>
+                            <span id="filtroCount" class="badge bg-black text-white rounded-circle d-none"
+                                style="font-size:10px; min-width:18px; padding:2px 5px;">0</span>
+                            <i class="fa-solid fa-chevron-down" style="font-size:10px; color:#aaa;"></i>
+                        </button>
+
+                        <div class="dropdown-menu dropdown-menu-end p-3 bg-white border"
+                            style="width:300px; border-color:#eee !important; box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-semibold text-dark" style="font-size:14px;">Filtros</span>
+                                <button type="button" id="limpiarFiltros" class="btn btn-sm text-muted p-0 border-0"
+                                    style="font-size:12px; text-decoration:underline;">
+                                    Limpiar todo
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <input type="number" name="habitacion"
+                                    class="form-control bg-light border-0 filtro-input" placeholder="Nº habitación"
+                                    value="{{ request.args.get('habitacion','') }}">
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label text-muted mb-1" style="font-size:11px; font-weight:400;">
+                                    <i class="fa-regular fa-calendar me-1" style="font-size:10px;"></i>Fecha
+                                    inicio del filtro
+                                </label>
+                                <input type="date" name="inicio" class="form-control bg-light border-0 filtro-input"
+                                    value="{{ request.args.get('inicio','') }}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted mb-1" style="font-size:11px; font-weight:400;">
+                                    <i class="fa-regular fa-calendar-check me-1" style="font-size:10px;"></i>Fecha fin
+                                    del filtro
+                                </label>
+                                <input type="date" name="fin" class="form-control bg-light border-0 filtro-input"
+                                    value="{{ request.args.get('fin','') }}">
+                            </div>
+
+                            <div>
+                                <label class="form-label text-muted mb-1"
+                                    style="font-size:12px; font-weight:500;">Estado</label>
+                                <select name="filtro" class="form-select bg-light border-0 filtro-input">
+                                    <option value="">Todos</option>
+                                    <option value="activas" {% if request.args.get('filtro')=='activas' %}selected{%
+                                        endif %}>Activas</option>
+                                    <option value="historial" {% if request.args.get('filtro')=='historial' %}selected{%
+                                        endif %}>Historial</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <button class="btn btn-dark text-white w-100 rounded-3 fw-semibold">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card bg-white border-secondary">
+    <div class="card-header bg-black text-white d-flex justify-content-between">
+        <span>Listado de Reservaciones</span>
+        <span class="badge bg-secondary">{{ reservaciones|length }}</span>
+    </div>
+
+    <div class="card-body p-0">
+        {% if reservaciones|length == 0 %}
+        <div class="text-center text-muted py-5">
+            <i class="fa-regular fa-folder-open fa-2x mb-2 d-block" style="color:#ccc;"></i>
+            No hay reservaciones registradas
+        </div>
+        {% else %}
+
+        <div class="table-responsive">
+            <table class="table table-hover text-center mb-0 align-middle">
+
+                <thead>
+                    <tr>
+                        <th class="border-secondary py-3">ID</th>
+                        <th class="border-secondary py-3">Huésped</th>
+                        <th class="border-secondary py-3">Habitación</th>
+                        <th class="border-secondary py-3">Tipo</th>
+                        <th class="border-secondary py-3">Inicio</th>
+                        <th class="border-secondary py-3">Fin</th>
+                        <th class="border-secondary py-3">Noches</th>
+                        <th class="border-secondary py-3">Total</th>
+                        <th class="border-secondary py-3">Estado</th>
+
+                        {% if session["rol"] == "Recepcionista" %}
+                        <th class="border-secondary py-3">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reservaciones %}
+                    <tr class="border-secondary">
+
+                        <td class="text-outline-secondary">{{ r.id_reservacion }}</td>
+                        <td class="text-outline-secondary">{{ r.nombre_huesped }}</td>
+                        <td class="text-outline-secondary">{{ r.num_habitacion }}</td>
+                        <td class="text-outline-secondary">{{ r.tipo_habitacion }}</td>
+                        <td class="text-outline-secondary">{{ r.fecha_inicio }}</td>
+                        <td class="text-outline-secondary">{{ r.fecha_fin }}</td>
+                        <td class="text-outline-secondary">{{ r.noches }}</td>
+                        <td class="text-outline-secondary">${{ r.precio }}</td>
+                        <td class="text-outline-secondary">{{ r.estado }}</td>
+
+                        {% if session["rol"] == "Recepcionista" %}
+                        <td>
+                            <a href="{{ url_for('editar_reservacion', id=r.id_reservacion) }}"
+                                class="btn btn-outline-secondary btn-sm me-1 text-black">
+                                <i class="fa-solid fa-pen-to-square me-1"></i>Editar
+                            </a>
+                            <form action="{{ url_for('eliminar_reservacion', id=r.id_reservacion) }}" method="POST"
+                                style="display:inline;">
+                                <button class="btn btn-outline-danger btn-sm"
+                                    onclick="return confirm('¿Eliminar reservación?')">
+                                    <i class="fa-solid fa-trash me-1"></i>Eliminar
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#id_huesped').select2({
+            placeholder: "Buscar identificación...",
+            width: '100%'
+        });
+
+    });
+
+</script>
+
+<script>
+
+    const selectHuesped =
+        document.getElementById("id_huesped");
+
+    const nombre =
+        document.getElementById("nombre_huesped");
+
+    selectHuesped.addEventListener("change", () => {
+
+        const option =
+            selectHuesped.options[
+            selectHuesped.selectedIndex
+            ];
+
+        nombre.value =
+            option.dataset.nombre || "";
+
+    });
+
+</script>
+
+<script>
+    const inputs = document.querySelectorAll(".filtro-input");
+    const badge = document.getElementById("filtroCount");
+    const limpiar = document.getElementById("limpiarFiltros");
+
+    function actualizar() {
+        let c = 0;
+        inputs.forEach(i => { if (i.value) c++; });
+
+        if (c > 0) {
+            badge.textContent = c;
+            badge.classList.remove("d-none");
+        } else {
+            badge.classList.add("d-none");
+        }
+    }
+
+    inputs.forEach(i => i.addEventListener("input", actualizar));
+
+    limpiar.onclick = () => {
+        inputs.forEach(i => i.value = "");
+        actualizar();
+    };
+</script>
+
+{% endblock %}

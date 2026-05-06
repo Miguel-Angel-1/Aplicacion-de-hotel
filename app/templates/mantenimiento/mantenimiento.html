@@ -1,0 +1,82 @@
+{% extends "index.html" %}
+{% block content %}
+
+<div class="card mb-4">
+    <div class="card-header bg-warning">
+        Nuevo Reporte
+    </div>
+    <div class="card-body">
+
+        <form method="post" class="row g-3">
+            <div class="col-md-4">
+                <input name="num_habitacion" class="form-control" placeholder="Habitación" required>
+            </div>
+
+            <div class="col-md-4">
+                <input name="id_empleado" class="form-control" placeholder="ID Empleado" required>
+            </div>
+
+            <div class="col-md-4">
+                <select name="estado_reporte" class="form-control">
+                    <option>Pendiente</option>
+                    <option>En proceso</option>
+                    <option>Finalizado</option>
+                </select>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-warning">Registrar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+<div class="card">
+    <form method="get" class="row g-2 mb-3 p-3">
+        <div class="col-md-8">
+            <input type="text" class="form-control" name="buscar"
+                   placeholder="Buscar por habitación o estado"
+                   value="{{ buscar or '' }}">
+        </div>
+        <div class="col-md-2">
+            <select name="filtro" class="form-select">
+                <option value="">Filtrar por</option>
+                <option value="todos">Todos</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        Reportes de Mantenimiento
+    </div>
+    <div class="card-body">
+
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Habitación</th>
+                    <th>Empleado</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mantenimiento %}
+                <tr>
+                    <td>{{ m.num_habitacion }}</td>
+                    <td>{{ m.id_empleado }}</td>
+                    <td>{{ m.estado_reporte }}</td>
+                    <td>{{ m.fecha_reporte }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

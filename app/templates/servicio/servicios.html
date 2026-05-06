@@ -1,0 +1,42 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="card">
+    <form method="get" class="row g-2 mb-3 p-3">
+        <div class="col-md-10">
+            <input type="text" class="form-control" name="buscar" placeholder="Buscar por tipo o descripción"
+                value="{{ buscar or '' }}">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        Servicios del Hotel
+    </div>
+    <div class="card-body">
+
+        <table class="table table-striped text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in servicios %}
+                <tr>
+                    <td>{{ s.tipo }}</td>
+                    <td>${{ s.precio }}</td>
+                    <td>{{ s.descripcion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

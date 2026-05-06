@@ -1,0 +1,158 @@
+{% extends "index.html" %}
+{% block content %}
+
+{% if session["rol"] == "Recepcionista" %}
+<div class="card bg-white border-secondary mb-2">
+
+    <div class="card-header bg-black border-secondary text-white fw-semibold">
+        Nuevo Huésped
+    </div>
+
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('huespedes') }}" class="row g-3">
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Nombre</label>
+                <input type="text" name="nombre"
+                    class="form-control border-secondary"
+                    placeholder="Ingrese el nombre del huésped"
+                    required minlength="2">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Apellido Paterno</label>
+                <input type="text" name="apellidoP"
+                    class="form-control border-secondary"
+                    placeholder="Ingrese el apellido paterno"
+                    required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Apellido Materno</label>
+                <input type="text" name="apellidoM"
+                    class="form-control border-secondary"
+                    placeholder="Ingrese el apellido materno"
+                    required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Identificación</label>
+                <input type="text" name="identificacion"
+                    class="form-control border-secondary"
+                    placeholder="Ejemplo: INE, Pasaporte o Licencia"
+                    required minlength="5">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Correo Electrónico</label>
+                <input type="email" name="email"
+                    class="form-control border-secondary"
+                    placeholder="Ingrese el correo electrónico"
+                    required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Teléfono</label>
+                <input type="tel" name="telefono"
+                    class="form-control border-secondary"
+                    pattern="[0-9]{10}"
+                    placeholder="10 dígitos"
+                    required>
+            </div>
+
+            <div class="col-md-12 d-flex justify-content-end">
+                <button class="btn btn-dark border-secondary fw-semibold">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Guardar
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+{% endif %}
+
+<div class="card bg-white border-secondary mb-2">
+    <div class="card-body py-3">
+        <form method="get" class="row g-2">
+            <div class="col-md-10">
+                <input type="text" class="form-control border-secondary"
+                    name="buscar"
+                    placeholder="Buscar por nombre, apellidos, identificación, teléfono o email"
+                    value="{{ buscar or '' }}">
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-dark w-100 border-secondary">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card bg-dark border-secondary">
+    <div class="card-header bg-black border-secondary d-flex justify-content-between align-items-center">
+        <span class="text-white fw-semibold mb-0">Listado de Huéspedes</span>
+
+        <span class="badge bg-secondary text-white">
+            {{ huespedes|length }} registro{{ 's' if huespedes|length != 1 else '' }}
+        </span>
+    </div>
+
+    <div class="card-body p-0">
+
+        {% if huespedes|length == 0 %}
+        <div class="text-center text-secondary py-5 bg-light">
+            <i class="fa-regular fa-folder-open fa-2x mb-2 d-block"></i>
+            No hay huéspedes registrados
+        </div>
+        {% else %}
+        
+        <div class="table-responsive">
+            <table class="table table-hover text-center mb-0 align-middle">
+                <thead class="border-secondary">
+                    <tr>
+                        <th class="border-secondary py-3">Nombre</th>
+                        <th class="border-secondary py-3">Identificación</th>
+                        <th class="border-secondary py-3">Teléfono</th>
+                        <th class="border-secondary py-3">Email</th>
+
+                        {% if session["rol"] == "Recepcionista" %}
+                        <th class="border-secondary py-3">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in huespedes %}
+                    <tr class="border-secondary">
+
+                        <td class="text-outline-secondary">{{ h.nombre_completo }}</td>
+                        <td class="text-outline-secondary">{{ h.identificacion }}</td>
+                        <td class="text-outline-secondary">{{ h.telefono }}</td>
+                        <td class="text-outline-secondary">{{ h.email }}</td>
+
+                        {% if session["rol"] == "Recepcionista" %}
+                        <td>
+                            <a href="{{ url_for('editar_huesped', id=h.id_huesped) }}"
+                                class="btn btn-outline-secondary btn-sm me-1 text-black">
+                                <i class="fa-solid fa-pen-to-square me-1"></i>Editar
+                            </a>
+                            <form action="{{ url_for('eliminar_huesped', id=h.id_huesped) }}"
+                                method="POST" style="display:inline;">
+                                <button class="btn btn-outline-danger btn-sm"
+                                    onclick="return confirm('¿Eliminar huésped?')">
+                                    <i class="fa-solid fa-trash-can me-1"></i>Eliminar
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

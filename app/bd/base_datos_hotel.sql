@@ -1,123 +1,184 @@
 CREATE DATABASE IF NOT EXISTS base_datos_hotel;
 USE base_datos_hotel;
 
-DROP TABLE IF EXISTS solicita;
 DROP TABLE IF EXISTS pagos;
+DROP TABLE IF EXISTS solicita;
 DROP TABLE IF EXISTS reservacion;
 DROP TABLE IF EXISTS mantenimiento;
 DROP TABLE IF EXISTS servicio;
 DROP TABLE IF EXISTS habitacion;
-DROP TABLE IF EXISTS empleado;
 DROP TABLE IF EXISTS huesped;
+DROP TABLE IF EXISTS empleado;
+DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS bitacora;
 
 CREATE TABLE huesped(
-    id_huesped INT NOT NULL AUTO_INCREMENT,
+    id_huesped INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(20) NOT NULL,
     apellidoP VARCHAR(20) NOT NULL,
     apellidoM VARCHAR(20),
-    identificacion VARCHAR(20) NOT NULL,
+    identificacion VARCHAR(20) NOT NULL UNIQUE,
     email VARCHAR(50) NOT NULL,
-    telefono VARCHAR(15) NOT NULL,
-    PRIMARY KEY(id_huesped)
+    telefono VARCHAR(15) NOT NULL
 );
-
-INSERT INTO huesped(nombre, apellidoP, apellidoM, identificacion, email, telefono)
-VALUES
-('Juan', 'Pérez', 'López', 'A12345678', 'juan.perez@email.com', '5551234567'),
-('María', 'Gómez', 'Ramírez', 'B87654321', 'maria.gomez@email.com', '5559876543'),
-('Carlos', 'Sánchez', NULL, 'C23456789', 'carlos.sanchez@email.com', '5552345678'),
-('Lucía', 'Hernández', 'Vega', 'D34567890', 'lucia.hernandez@email.com', '5553456789'),
-('Fernando', 'Cruz', NULL, 'E45678901', 'fernando.cruz@email.com', '5554567890'),
-('Valeria', 'Mendoza', 'Ortiz', 'F56789012', 'valeria.mendoza@email.com', '5555678901'),
-('Diego', 'Ramírez', 'Soto', 'G67890123', 'diego.ramirez@email.com', '5556789012'),
-('Sofía', 'García', 'Navarro', 'H78901234', 'sofia.garcia@email.com', '5557890123'),
-('Andrés', 'Vega', 'Pardo', 'I89012345', 'andres.vega@email.com', '5558901234'),
-('Camila', 'Luna', 'Torres', 'J90123456', 'camila.luna@email.com', '5559012345'),
-('Ricardo', 'Morales', NULL, 'K01234567', 'ricardo.morales@email.com', '5550123456'),
-('Fernanda', 'Castillo', 'Ríos', 'L12345678', 'fernanda.castillo@email.com', '5551234578'),
-('Javier', 'Pinto', 'Salazar', 'M23456789', 'javier.pinto@email.com', '5552345679'),
-('Isabella', 'Reyes', 'Méndez', 'N34567890', 'isabella.reyes@email.com', '5553456790'),
-('Héctor', 'Ortiz', 'Cruz', 'O45678901', 'hector.ortiz@email.com', '5554567901'),
-('Natalia', 'Romero', NULL, 'P56789012', 'natalia.romero@email.com', '5555678902'),
-('Gabriel', 'Flores', 'Gutiérrez', 'Q67890123', 'gabriel.flores@email.com', '5556789013'),
-('Paola', 'Molina', 'Sánchez', 'R78901234', 'paola.molina@email.com', '5557890124'),
-('Manuel', 'Vargas', NULL, 'S89012345', 'manuel.vargas@email.com', '5558901235'),
-('Renata', 'Cárdenas', 'Hernández', 'T90123456', 'renata.cardenas@email.com', '5559012346');
-
 
 CREATE TABLE empleado(
-    id_empleado INT NOT NULL AUTO_INCREMENT,
+    id_empleado INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(20) NOT NULL,
-    puesto ENUM("Recepcionista", "Mantenimiento","Bar","Lavandería","Gerente") NOT NULL,
-    PRIMARY KEY(id_empleado)
+    puesto ENUM("Recepcionista","Mantenimiento","Bar","Lavandería","Gerente") NOT NULL
 );
-
-INSERT INTO empleado(nombre, puesto)
-VALUES
-('Laura Torres', 'Recepcionista'),
-('Miguel Rivas', 'Mantenimiento'),
-('Ana Díaz', 'Bar'),
-('Pedro Ortega', 'Lavandería'),
-('Sofía Morales', 'Gerente'),
-('Claudia Peña', 'Recepcionista'),
-('Raúl Jiménez', 'Mantenimiento'),
-('Patricia Flores', 'Bar'),
-('Jorge Salinas', 'Lavandería'),
-('Elena Aguirre', 'Recepcionista'),
-('Hugo Castillo', 'Mantenimiento'),
-('Mariana Soto', 'Bar'),
-('Luis Herrera', 'Lavandería'),
-('Verónica Ruiz', 'Recepcionista'),
-('Fernando Delgado', 'Mantenimiento');
-
 
 CREATE TABLE habitacion(
-    num_habitacion INT NOT NULL AUTO_INCREMENT,
-    tipo ENUM ('Estándar', 'Superior','Deluxe', 'Junior Suite','Suite') NOT NULL,
-    precio DECIMAL(10,2) NOT NULL CHECK (precio > 0),
-    estado ENUM('Disponible', 'Ocupada', 'Mantenimiento') NOT NULL,
-    PRIMARY KEY(num_habitacion)
+    num_habitacion INT AUTO_INCREMENT PRIMARY KEY,
+    tipo ENUM('Estándar','Superior','Deluxe','Junior Suite','Suite') NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
+    estado ENUM('Disponible',"Ocupada",'Mantenimiento') NOT NULL
 );
-
-INSERT INTO habitacion(tipo, precio, estado)
-VALUES
-('Estándar', 400, 'Disponible'),
-('Estándar', 400, 'Ocupada'),
-('Estándar', 400, 'Disponible'),
-('Estándar', 400, 'Mantenimiento'),
-('Superior', 600, 'Disponible'),
-('Superior', 600, 'Ocupada'),
-('Superior', 600, 'Disponible'),
-('Superior', 600, 'Mantenimiento'),
-('Deluxe', 800, 'Disponible'),
-('Deluxe', 800, 'Ocupada'),
-('Deluxe', 800, 'Disponible'),
-('Junior Suite', 1200, 'Disponible'),
-('Junior Suite', 1200, 'Ocupada'),
-('Junior Suite', 1200, 'Mantenimiento'),
-('Suite', 1500, 'Disponible'),
-('Suite', 1500, 'Ocupada'),
-('Suite', 1500, 'Mantenimiento'),
-('Estándar', 400, 'Disponible'),
-('Superior', 600, 'Disponible'),
-('Deluxe', 800, 'Disponible'),
-('Junior Suite', 1200, 'Disponible'),
-('Suite', 1500, 'Disponible'),
-('Estándar', 400, 'Ocupada'),
-('Superior', 600, 'Ocupada'),
-('Deluxe', 800, 'Disponible');
-
 
 CREATE TABLE servicio(
-    id_servicio INT NOT NULL AUTO_INCREMENT,
+    id_servicio INT AUTO_INCREMENT PRIMARY KEY,
     tipo ENUM("Bar","Lavandería") NOT NULL,
-    precio DECIMAL(10,2) NOT NULL CHECK (precio > 0),
-    descripcion VARCHAR(200) NOT NULL,
-    PRIMARY KEY(id_servicio)
+    precio DECIMAL(10,2) NOT NULL,
+    descripcion VARCHAR(200) NOT NULL
 );
 
-INSERT INTO servicio(tipo, precio, descripcion)
-VALUES
+CREATE TABLE mantenimiento(
+    id_reporte INT AUTO_INCREMENT PRIMARY KEY,
+    num_habitacion INT NOT NULL,
+    id_empleado INT NOT NULL,
+    fecha_reporte DATE NOT NULL DEFAULT (CURRENT_DATE),
+    estado_reporte ENUM("Pendiente","En proceso","Finalizado") NOT NULL DEFAULT "Pendiente",
+    FOREIGN KEY(num_habitacion) REFERENCES habitacion(num_habitacion),
+    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado)
+);
+
+CREATE TABLE reservacion(
+    id_reservacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_huesped INT NOT NULL,
+    id_empleado INT NOT NULL,
+    num_habitacion INT NOT NULL,
+    fecha_reserva DATE NOT NULL DEFAULT (CURRENT_DATE),
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    detalles VARCHAR(200),
+    precio DECIMAL(10,2) NOT NULL,
+    estado ENUM('activa','pendiente','finalizada','cancelada') DEFAULT 'activa',
+    FOREIGN KEY(id_huesped) REFERENCES huesped(id_huesped),
+    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado),
+    FOREIGN KEY(num_habitacion) REFERENCES habitacion(num_habitacion)
+);
+
+CREATE TABLE pagos(
+    id_pago INT AUTO_INCREMENT PRIMARY KEY,
+    id_reservacion INT NOT NULL,
+    id_empleado INT NOT NULL,
+    metodo_pago ENUM('Tarjeta','Efectivo'),
+    fecha_pago DATE NOT NULL DEFAULT (CURRENT_DATE),
+    monto_total DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY(id_reservacion) REFERENCES reservacion(id_reservacion),
+    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado)
+);
+
+CREATE TABLE solicita(
+    id_solicita INT AUTO_INCREMENT PRIMARY KEY,
+    id_reservacion INT NOT NULL,
+    id_servicio INT NOT NULL,
+    subtotal DECIMAL(10,2),
+    fecha DATE NOT NULL DEFAULT (CURRENT_DATE),
+    cantidad INT NOT NULL,
+    FOREIGN KEY(id_reservacion) REFERENCES reservacion(id_reservacion),
+    FOREIGN KEY(id_servicio) REFERENCES servicio(id_servicio)
+);
+
+CREATE TABLE bitacora(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario VARCHAR(50) NOT NULL,
+    accion VARCHAR(100) NOT NULL,
+    tabla_afectada VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(255),
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE usuarios(
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    id_empleado INT NOT NULL UNIQUE,
+    usuario VARCHAR(50) NOT NULL UNIQUE,
+    contraseña VARCHAR(255) NOT NULL,
+    rol ENUM('Gerente','Recepcionista','Mantenimiento','Bar','Lavandería') NOT NULL,
+    estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ultimo_login DATETIME NULL,
+    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado)
+);
+
+INSERT INTO huesped(nombre, apellidoP, apellidoM, identificacion, email, telefono) VALUES
+('Juan Carlos','Pérez','Lozano','ID1001','juan1@email.com','5550000001'),
+('María Fernanda','Gómez','Ríos','ID1002','maria2@email.com','5550000002'),
+('Luis','Ramírez',NULL,'ID1003','luis3@email.com','5550000003'),
+('Ana Sofía','Hernández','Vega','ID1004','ana4@email.com','5550000004'),
+('Pedro','Martínez','Cruz','ID1005','pedro5@email.com','5550000005'),
+('Laura','Torres',NULL,'ID1006','laura6@email.com','5550000006'),
+('Diego','Sánchez','Morales','ID1007','diego7@email.com','5550000007'),
+('Sofía','García','Navarro','ID1008','sofia8@email.com','5550000008'),
+('Carlos Eduardo','Vargas','Luna','ID1009','carlos9@email.com','5550000009'),
+('Valeria','Mendoza','Ortiz','ID1010','valeria10@email.com','5550000010'),
+('Andrés Felipe','Ruiz','Pardo','ID1011','andres11@email.com','5550000011'),
+('Paola','Cabrera',NULL,'ID1012','paola12@email.com','5550000012'),
+('Jorge Luis','Flores','Soto','ID1013','jorge13@email.com','5550000013'),
+('Camila','Luna','Torres','ID1014','camila14@email.com','5550000014'),
+('Ricardo','Morales',NULL,'ID1015','ricardo15@email.com','5550000015'),
+('Daniel','Ortega','Vega','ID1016','daniel16@email.com','5550000016'),
+('Karla','Navarro','Ruiz','ID1017','karla17@email.com','5550000017'),
+('Eduardo','Salas','Mora','ID1018','eduardo18@email.com','5550000018'),
+('Patricia','Ríos','Lopez','ID1019','patricia19@email.com','5550000019'),
+('Sergio','Méndez','Lozano','ID1020','sergio20@email.com','5550000020');
+
+INSERT INTO empleado(nombre, puesto) VALUES
+('Laura Torres Gómez','Recepcionista'),
+('Carlos Eduardo Méndez Ruiz','Recepcionista'),
+('Ana María López Díaz','Recepcionista'),
+('Miguel Ángel Rivas Soto','Mantenimiento'),
+('José Luis Paredes','Mantenimiento'),
+('Hugo Castillo Díaz','Mantenimiento'),
+('Alberto Ruiz Pérez','Mantenimiento'),
+('Fernanda Ortiz Cruz','Bar'),
+('Marcos Antonio Domínguez Vega','Bar'),
+('Luis Enrique Salinas','Bar'),
+('Gabriela Sánchez','Lavandería'),
+('Raquel Moreno Díaz','Lavandería'),
+('Patricia Flores Ruiz','Lavandería'),
+('Sofía Morales Vega','Gerente'),
+('Alejandro Herrera','Recepcionista'),
+('Diana Campos','Recepcionista'),
+('Roberto Fuentes','Mantenimiento'),
+('Karla Peña','Bar'),
+('Andrea Soto','Lavandería'),
+('Fernando Delgado','Gerente');
+
+INSERT INTO habitacion(tipo, precio, estado) VALUES
+('Estándar',400,'Disponible'),
+('Estándar',400,'Disponible'),
+('Estándar',400,'Ocupada'),
+('Estándar',400,'Disponible'),
+('Estándar',400,'Mantenimiento'),
+('Superior',600,'Disponible'),
+('Superior',600,'Ocupada'),
+('Superior',600,'Disponible'),
+('Superior',600,'Mantenimiento'),
+('Deluxe',800,'Disponible'),
+('Deluxe',800,'Ocupada'),
+('Deluxe',800,'Disponible'),
+('Junior Suite',1200,'Disponible'),
+('Junior Suite',1200,'Ocupada'),
+('Junior Suite',1200,'Disponible'),
+('Suite',1500,'Disponible'),
+('Suite',1500,'Ocupada'),
+('Suite',1500,'Disponible'),
+('Estándar',400,'Disponible'),
+('Superior',600,'Disponible');
+
+INSERT INTO servicio(tipo, precio, descripcion) VALUES
 ('Bar', 50, 'Bebidas refrescantes'),
 ('Bar', 80, 'Cócteles especiales'),
 ('Bar', 60, 'Snacks y aperitivos'),
@@ -134,189 +195,119 @@ VALUES
 ('Lavandería', 110, 'Plancha y doblado de ropa'),
 ('Lavandería', 130, 'Limpieza de ropa de cama');
 
-CREATE TABLE mantenimiento(
-    id_reporte INT NOT NULL AUTO_INCREMENT,
-    num_habitacion INT NOT NULL,
-    id_empleado INT NOT NULL,
-    fecha_reporte DATE NOT NULL,
-    estado_reporte ENUM("Pendiente","En proceso","Finalizado") NOT NULL,
-    PRIMARY KEY(id_reporte),
-    FOREIGN KEY(num_habitacion) REFERENCES habitacion(num_habitacion),
-    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado)
-);
+INSERT INTO mantenimiento(num_habitacion, id_empleado, fecha_reporte, estado_reporte) VALUES
+(1,4,'2026-05-01','Pendiente'),
+(2,5,'2026-05-02','En proceso'),
+(3,6,'2026-05-03','Finalizado'),
+(4,7,'2026-05-04','Pendiente'),
+(5,17,'2026-05-05','En proceso'),
+(6,4,'2026-05-06','Finalizado'),
+(7,5,'2026-05-07','Pendiente'),
+(8,6,'2026-05-08','En proceso'),
+(9,7,'2026-05-09','Finalizado'),
+(10,17,'2026-05-10','Pendiente'),
+(11,4,'2026-05-11','En proceso'),
+(12,5,'2026-05-12','Finalizado'),
+(13,6,'2026-05-13','Pendiente'),
+(14,7,'2026-05-14','En proceso'),
+(15,17,'2026-05-15','Finalizado'),
+(16,4,'2026-05-16','Pendiente'),
+(17,5,'2026-05-17','En proceso'),
+(18,6,'2026-05-18','Finalizado'),
+(19,7,'2026-05-19','Pendiente'),
+(20,17,'2026-05-20','En proceso');
 
-INSERT INTO mantenimiento(num_habitacion, id_empleado, fecha_reporte, estado_reporte)
-VALUES
-(3, 2, '2026-02-26', 'Pendiente'),
-(6, 7, '2026-02-26', 'En proceso'),
-(13, 2, '2026-02-26', 'Pendiente'),
-(14, 15, '2026-02-27', 'Finalizado'),
-(24, 2, '2026-02-28', 'Pendiente');
+INSERT INTO reservacion(id_huesped,id_empleado,num_habitacion,fecha_reserva,fecha_inicio,fecha_fin,detalles,precio) VALUES
+(1,1,1,'2026-05-01','2026-05-10','2026-05-12','Vacaciones',800),
+(2,2,2,'2026-05-01','2026-05-11','2026-05-14','Negocios',1200),
+(3,3,6,'2026-05-02','2026-05-12','2026-05-15','Viaje',1800),
+(4,1,10,'2026-05-02','2026-05-13','2026-05-16','Descanso',2400),
+(5,2,13,'2026-05-03','2026-05-14','2026-05-17','Familiar',3600),
+(6,3,15,'2026-05-03','2026-05-15','2026-05-18','Lujo',4500),
+(7,1,18,'2026-05-04','2026-05-16','2026-05-18','Fin semana',800),
+(8,2,19,'2026-05-04','2026-05-17','2026-05-20','Vacaciones',1800),
+(9,3,20,'2026-05-05','2026-05-18','2026-05-22','Viaje',3200),
+(10,1,4,'2026-05-05','2026-05-19','2026-05-21','Negocios',800),
+(11,2,5,'2026-05-06','2026-05-20','2026-05-22','Descanso',800),
+(12,3,7,'2026-05-06','2026-05-21','2026-05-24','Vacaciones',1800),
+(13,1,8,'2026-05-07','2026-05-22','2026-05-25','Trabajo',1800),
+(14,2,9,'2026-05-07','2026-05-23','2026-05-26','Viaje',1800),
+(15,3,11,'2026-05-08','2026-05-24','2026-05-27','Descanso',2400),
+(16,1,12,'2026-05-08','2026-05-25','2026-05-28','Vacaciones',2400),
+(17,2,14,'2026-05-09','2026-05-26','2026-05-29','Familiar',3600),
+(18,3,16,'2026-05-09','2026-05-27','2026-05-30','Lujo',4500),
+(19,1,17,'2026-05-10','2026-05-28','2026-05-31','Viaje',4500),
+(20,2,3,'2026-05-10','2026-05-29','2026-06-01','Descanso',800);
 
-CREATE TABLE reservacion(
-    id_reservacion INT NOT NULL AUTO_INCREMENT,
-    id_huesped INT NOT NULL,
-    id_empleado INT NOT NULL,
-    num_habitacion INT NOT NULL,
-    fecha_reserva DATE NOT NULL,
-    fecha_inicio DATE NOT NULL,
-    fecha_fin DATE NOT NULL,
-    detalles VARCHAR(200) NOT NULL,
-    precio DECIMAL(10,2) NOT NULL CHECK (precio > 0),
-    PRIMARY KEY(id_reservacion),
-    FOREIGN KEY(id_huesped) REFERENCES huesped(id_huesped),
-    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado),
-    FOREIGN KEY(num_habitacion) REFERENCES habitacion(num_habitacion),
-    CHECK (fecha_fin > fecha_inicio)
-);
+INSERT INTO pagos(id_reservacion,id_empleado,metodo_pago,fecha_pago,monto_total) VALUES
+(1,1,'Tarjeta','2026-05-12',800),
+(2,2,'Efectivo','2026-05-14',1200),
+(3,3,'Tarjeta','2026-05-15',1800),
+(4,1,'Efectivo','2026-05-16',2400),
+(5,2,'Tarjeta','2026-05-17',3600),
+(6,3,'Efectivo','2026-05-18',4500),
+(7,1,'Tarjeta','2026-05-18',800),
+(8,2,'Efectivo','2026-05-20',1800),
+(9,3,'Tarjeta','2026-05-22',3200),
+(10,1,'Efectivo','2026-05-21',800),
+(11,2,'Tarjeta','2026-05-22',800),
+(12,3,'Efectivo','2026-05-24',1800),
+(13,1,'Tarjeta','2026-05-25',1800),
+(14,2,'Efectivo','2026-05-26',1800),
+(15,3,'Tarjeta','2026-05-27',2400),
+(16,1,'Efectivo','2026-05-28',2400),
+(17,2,'Tarjeta','2026-05-29',3600),
+(18,3,'Efectivo','2026-05-30',4500),
+(19,1,'Tarjeta','2026-05-31',4500),
+(20,2,'Efectivo','2026-06-01',800);
 
-INSERT INTO reservacion(id_huesped, id_empleado, num_habitacion, fecha_reserva, fecha_inicio, fecha_fin, detalles, precio)
-VALUES
-(1, 1, 2, '2026-02-20', '2026-03-01', '2026-03-05', 'Vacaciones familiares', 1600),
-(2, 1, 4, '2026-02-22', '2026-03-10', '2026-03-12', 'Viaje de negocios', 1200),
-(3, 5, 7, '2026-02-23', '2026-03-15', '2026-03-20', 'Luna de miel', 6000),
-(4, 6, 9, '2026-02-24', '2026-03-05', '2026-03-08', 'Vacaciones de fin de semana', 1200),
-(5, 7, 10, '2026-02-25', '2026-03-12', '2026-03-15', 'Conferencia de trabajo', 1800),
-(6, 8, 11, '2026-02-26', '2026-03-18', '2026-03-20', 'Visita familiar', 1600),
-(7, 9, 12, '2026-02-26', '2026-03-20', '2026-03-22', 'Aniversario', 2400),
-(8, 10, 13, '2026-02-27', '2026-03-25', '2026-03-28', 'Vacaciones', 1200),
-(9, 11, 14, '2026-02-28', '2026-03-28', '2026-03-30', 'Viaje de negocios', 1200),
-(10, 12, 15, '2026-02-28', '2026-04-01', '2026-04-05', 'Escapada de fin de semana', 4800),
-(11, 13, 16, '2026-02-28', '2026-04-03', '2026-04-07', 'Vacaciones en familia', 4800),
-(12, 14, 17, '2026-02-28', '2026-04-05', '2026-04-10', 'Conferencia profesional', 6000),
-(13, 15, 18, '2026-02-28', '2026-04-10', '2026-04-12', 'Viaje romántico', 2400),
-(14, 1, 19, '2026-02-28', '2026-04-12', '2026-04-15', 'Escapada fin de semana', 1800),
-(15, 2, 20, '2026-02-28', '2026-04-15', '2026-04-18', 'Vacaciones familiares', 3600),
-(16, 3, 21, '2026-02-28', '2026-04-20', '2026-04-23', 'Reunión de amigos', 3600),
-(17, 4, 22, '2026-02-28', '2026-04-22', '2026-04-25', 'Vacaciones', 3600),
-(18, 5, 23, '2026-02-28', '2026-04-25', '2026-04-28', 'Conferencia laboral', 3600),
-(19, 6, 24, '2026-02-28', '2026-04-28', '2026-05-01', 'Vacaciones fin de semana', 1800),
-(20, 7, 25, '2026-02-28', '2026-05-01', '2026-05-05', 'Escapada romántica', 4800);
+INSERT INTO solicita(id_reservacion,id_servicio,subtotal,fecha,cantidad) VALUES
+(1,1,50,'2026-05-11',1),
+(2,2,80,'2026-05-12',1),
+(3,3,120,'2026-05-13',2),
+(4,4,100,'2026-05-14',1),
+(5,5,140,'2026-05-15',2),
+(6,6,55,'2026-05-16',1),
+(7,7,130,'2026-05-17',2),
+(8,8,95,'2026-05-18',1),
+(9,9,100,'2026-05-19',1),
+(10,10,150,'2026-05-20',1),
+(11,11,120,'2026-05-21',1),
+(12,12,200,'2026-05-22',1),
+(13,13,90,'2026-05-23',1),
+(14,14,110,'2026-05-24',1),
+(15,15,130,'2026-05-25',1),
+(16,16,75,'2026-05-26',1),
+(17,17,85,'2026-05-27',1),
+(18,18,140,'2026-05-28',1),
+(19,19,160,'2026-05-29',1),
+(20,20,90,'2026-05-30',1);
 
-CREATE TABLE pagos(
-	id_pago INT NOT NULL AUTO_INCREMENT,
-    id_reservacion INT NOT NULL,
-    id_empleado INT NOT NULL,
-    metodo_pago ENUM ('Tarjeta', 'Efectivo') NOT NULL,
-    fecha_pago DATE NOT NULL,
-    monto_total DECIMAL(10,2) NOT NULL CHECK(monto_total > 0),
-	PRIMARY KEY (id_pago),
-	FOREIGN KEY(id_reservacion) REFERENCES reservacion(id_reservacion),
-	FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado)
-);
-INSERT INTO pagos(id_reservacion, id_empleado, metodo_pago, fecha_pago, monto_total)
-VALUES
-(1, 1, 'Tarjeta', '2026-03-05', 1600),
-(2, 1, 'Efectivo', '2026-03-12', 1200),
-(3, 5, 'Tarjeta', '2026-03-20', 6000),
-(4, 6, 'Efectivo', '2026-03-08', 1200),
-(5, 7, 'Tarjeta', '2026-03-15', 1800),
-(6, 8, 'Efectivo', '2026-03-20', 1600),
-(7, 9, 'Tarjeta', '2026-03-22', 2400),
-(8, 10, 'Efectivo', '2026-03-28', 1200),
-(9, 11, 'Tarjeta', '2026-03-30', 1200),
-(10, 12, 'Efectivo', '2026-04-05', 4800),
-(11, 13, 'Tarjeta', '2026-04-07', 4800),
-(12, 14, 'Efectivo', '2026-04-10', 6000),
-(13, 15, 'Tarjeta', '2026-04-12', 2400),
-(14, 1, 'Efectivo', '2026-04-15', 1800),
-(15, 2, 'Tarjeta', '2026-04-18', 3600),
-(16, 3, 'Efectivo', '2026-04-23', 3600),
-(17, 4, 'Tarjeta', '2026-04-25', 3600),
-(18, 5, 'Efectivo', '2026-04-28', 3600),
-(19, 6, 'Tarjeta', '2026-05-01', 1800);
+INSERT INTO bitacora (usuario, accion, tabla_afectada, descripcion) VALUES 
+('gerente', 'INSERT', 'empleado', 'Se registró empleado Juan Pérez'),
+('recepcion', 'INSERT', 'huesped', 'Se registró huésped María Gómez'),
+('recepcion', 'INSERT', 'reservacion', 'Reservación creada para habitación 5'),
+('gerente', 'DELETE', 'empleado', 'Se eliminó empleado ID 3'),
+('bar', 'UPDATE', 'solicita', 'Se actualizó solicitud de servicio ID 2');
 
-CREATE TABLE solicita(
-    id_solicita INT NOT NULL AUTO_INCREMENT,
-    id_reservacion INT NOT NULL,
-    id_servicio INT NOT NULL,
-    subtotal DECIMAL(10,2) NOT NULL CHECK (subtotal > 0),
-    fecha DATE NOT NULL,
-    cantidad INT NOT NULL CHECK (cantidad > 0),
-    PRIMARY KEY (id_solicita),
-    FOREIGN KEY(id_reservacion) REFERENCES reservacion(id_reservacion),
-    FOREIGN KEY(id_servicio) REFERENCES servicio(id_servicio)
-);
-
-INSERT INTO solicita(id_reservacion, id_servicio, subtotal, fecha, cantidad)
-VALUES
-(1, 1, 50, '2026-03-02', 1),
-(1, 3, 100, '2026-03-03', 2),
-(2, 2, 80, '2026-03-11', 1),
-(3, 4, 150, '2026-03-16', 1),
-(4, 1, 50, '2026-03-06', 1),
-(4, 3, 100, '2026-03-06', 1),
-(5, 2, 80, '2026-03-13', 2),
-(5, 4, 150, '2026-03-14', 1),
-(6, 1, 50, '2026-03-19', 2),
-(7, 3, 100, '2026-03-21', 1),
-(8, 2, 80, '2026-03-26', 1),
-(9, 1, 50, '2026-03-29', 2),
-(10, 4, 150, '2026-04-02', 1),
-(11, 3, 100, '2026-04-04', 1),
-(12, 2, 80, '2026-04-06', 1),
-(13, 1, 50, '2026-04-11', 1),
-(14, 4, 150, '2026-04-13', 1),
-(15, 3, 100, '2026-04-16', 2),
-(16, 2, 80, '2026-04-21', 1),
-(17, 1, 50, '2026-04-23', 1);
-
-
-SET SQL_SAFE_UPDATES = 0;
-
--- 4 UPDATES --
-UPDATE huesped
-SET nombre = 'Paula'
-WHERE id_huesped = 18;
-
-UPDATE mantenimiento
-SET estado_reporte = 'Finalizado'
-WHERE id_reporte = 2;
-
-UPDATE servicio
-SET precio = 250
-WHERE id_servicio IN (9, 12);
-
-UPDATE servicio
-SET precio = precio * 1.2
-WHERE tipo = 'Bar';
-
--- 2 DELETES --
--- Eliminar reportes de mantenimiento finalizados --
-DELETE FROM mantenimiento
-WHERE id_reporte IN(
-SELECT id_reporte FROM (SELECT id_reporte FROM mantenimiento WHERE estado_reporte = "Finalizado") AS temp);
-SELECT * FROM mantenimiento;
-
--- Eliminar la reservación con número de habitación 24 -- 
-DELETE FROM reservacion
-WHERE id_reservacion IN(
-SELECT id_reservacion FROM (SELECT id_reservacion FROM reservacion WHERE num_habitacion = 24) AS temp);
-SELECT * FROM reservacion;
-
-
-SELECT * FROM huesped;
-
-SELECT nombre, puesto
-FROM empleado;
-
-SELECT * 
-FROM servicio
-WHERE precio > 120;
-
-SELECT * FROM habitacion
-ORDER BY tipo ASC;
-
--- ÍNDICES -- 
-CREATE INDEX idx_huesped_identificacion ON huesped(identificacion);
-CREATE UNIQUE INDEX idx_huesped_email ON huesped(email);
-CREATE INDEX idx_reserva_fechas ON reservacion(fecha_inicio, fecha_fin);
-CREATE INDEX idx_reserva_huesped ON reservacion(id_huesped);
-CREATE INDEX idx_habitacion_tipo ON habitacion(tipo);
-CREATE INDEX idx_pagos_reservacion ON pagos(id_reservacion);
-
-EXPLAIN FORMAT=TRADITIONAL  SELECT * FROM pagos WHERE id_reservacion =1;
-EXPLAIN FORMAT=TRADITIONAL  SELECT num_habitacion, tipo, precio FROM habitacion WHERE tipo = 'Estándar';
-EXPLAIN FORMAT=TRADITIONAL  SELECT * FROM reservacion WHERE id_huesped = 3;
-EXPLAIN FORMAT=TRADITIONAL  SELECT * FROM reservacion WHERE fecha_inicio BETWEEN '2026-02-01' AND '2026-02-28';
-EXPLAIN FORMAT=TRADITIONAL  SELECT nombre, email FROM huesped WHERE email = 'valeria.mendoza@email.com';
+INSERT INTO usuarios(id_empleado,usuario,contraseña,rol) VALUES
+(1,'recep1','1234','Recepcionista'),
+(2,'recep2','1234','Recepcionista'),
+(3,'recep3','1234','Recepcionista'),
+(4,'mant1','1234','Mantenimiento'),
+(5,'mant2','1234','Mantenimiento'),
+(6,'mant3','1234','Mantenimiento'),
+(7,'mant4','1234','Mantenimiento'),
+(8,'bar1','1234','Bar'),
+(9,'bar2','1234','Bar'),
+(10,'bar3','1234','Bar'),
+(11,'lava1','1234','Lavandería'),
+(12,'lava2','1234','Lavandería'),
+(13,'lava3','1234','Lavandería'),
+(14,'admin1','1234','Gerente'),
+(15,'admin2','1234','Gerente'),
+(16,'recep4','1234','Recepcionista'),
+(17,'mant5','1234','Mantenimiento'),
+(18,'bar4','1234','Bar'),
+(19,'lava4','1234','Lavandería'),
+(20,'recep5','1234','Recepcionista');

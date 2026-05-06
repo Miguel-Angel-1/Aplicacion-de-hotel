@@ -11,50 +11,49 @@
 
             <div class="col-md-3">
                 <label class="form-label">ID Huésped</label>
-                <input type="number" name="id_huesped" class="form-control"
-                       value="{{ reservacion.id_huesped }}" required min="1">
+                <input type="number" name="id_huesped" class="form-control" value="{{ reservacion.id_huesped }}"
+                    required min="1">
             </div>
 
             <div class="col-md-3">
                 <label class="form-label">ID Empleado</label>
-                <input type="number" name="id_empleado" class="form-control"
-                       value="{{ reservacion.id_empleado }}" required min="1">
+                <input type="number" name="id_empleado" class="form-control" value="{{ reservacion.id_empleado }}"
+                    required min="1">
             </div>
 
             <div class="col-md-3">
                 <label class="form-label">Habitación</label>
-                <input type="number" name="num_habitacion" class="form-control"
-                       value="{{ reservacion.num_habitacion }}" required min="1">
+                <input type="number" name="num_habitacion" class="form-control" value="{{ reservacion.num_habitacion }}"
+                    required min="1">
             </div>
 
             <div class="col-md-3">
                 <label class="form-label">Precio</label>
-                <input type="number" step="0.01" name="precio" class="form-control"
-                       value="{{ reservacion.precio }}" required>
+                <input type="number" step="0.01" name="precio" class="form-control" value="{{ reservacion.precio }}"
+                    required>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Fecha Inicio</label>
-                <input type="date" name="fecha_inicio" class="form-control"
-                       value="{{ reservacion.fecha_inicio }}" required>
+                <input type="date" name="fecha_inicio" class="form-control" value="{{ reservacion.fecha_inicio }}"
+                    required>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Fecha Fin</label>
-                <input type="date" name="fecha_fin" class="form-control"
-                       value="{{ reservacion.fecha_fin }}" required>
+                <input type="date" name="fecha_fin" class="form-control" value="{{ reservacion.fecha_fin }}" required>
             </div>
 
             <div class="col-12">
                 <label class="form-label">Detalles</label>
-                <input type="text" name="detalles" class="form-control"
-                       value="{{ reservacion.detalles }}" required>
+                <input type="text" name="detalles" class="form-control" value="{{ reservacion.detalles }}" required>
             </div>
 
             <div class="col-12">
                 <button class="btn btn-primary">Actualizar</button>
-                <a href="/reservaciones" class="btn btn-secondary">Cancelar</a>
             </div>
+            
+            
 
         </form>
     </div>

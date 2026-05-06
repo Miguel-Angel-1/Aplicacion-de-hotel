@@ -1,0 +1,87 @@
+{% extends "index.html" %}
+{% block content %}
+
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        Registrar Pago
+    </div>
+    <div class="card-body">
+
+        <form method="post" class="row g-3">
+            <div class="col-md-4">
+                <input name="id_reservacion" class="form-control" placeholder="ID Reservación" required>
+            </div>
+
+            <div class="col-md-4">
+                <input name="id_empleado" class="form-control" placeholder="ID Empleado" required>
+            </div>
+
+            <div class="col-md-4">
+                <select name="metodo_pago" class="form-control" required>
+                    <option value="">Método de pago</option>
+                    <option>Tarjeta</option>
+                    <option>Efectivo</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <input name="monto_total" class="form-control" placeholder="Monto total" required>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-success">Registrar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+<div class="card">
+    <form method="get" class="row g-2 mb-3 p-3">
+        <div class="col-md-8">
+            <input type="text" class="form-control" name="buscar"
+                   placeholder="Buscar por reservación o método"
+                   value="{{ buscar or '' }}">
+        </div>
+        <div class="col-md-2">
+            <select name="filtro" class="form-select">
+                <option value="">Filtrar por</option>
+                <option value="recientes">Pagos recientes</option>
+                <option value="todos">Todos</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        Historial de Pagos
+    </div>
+    <div class="card-body">
+
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Reservación</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pagos %}
+                <tr>
+                    <td>{{ p.id_reservacion }}</td>
+                    <td>${{ p.monto_total }}</td>
+                    <td>{{ p.metodo_pago }}</td>
+                    <td>{{ p.fecha_pago }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

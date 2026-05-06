@@ -1,0 +1,159 @@
+{% extends "index.html" %}
+{% block content %}
+
+{% if session["rol"] == "Gerente" %}
+<div class="card bg-white border-secondary mb-2">
+
+    <div class="card-header bg-black border-secondary text-white fw-semibold">
+        Nuevo Usuario
+    </div>
+
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('usuarios') }}" class="row g-3">
+
+            <!-- EMPLEADO -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Empleado</label>
+                <select name="id_empleado" class="form-control border-secondary w-100" required>
+                    <option value="">Seleccione un empleado</option>
+                    {% for e in empleados %}
+                        <option value="{{ e.id_empleado }}" w-100>
+                            {{ e.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- USUARIO -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Usuario</label>
+                <input type="text" name="usuario"
+                    class="form-control border-secondary"
+                    placeholder="Nombre de usuario"
+                    required>
+            </div>
+
+            <!-- CONTRASEÑA -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Contraseña</label>
+                <input type="password" name="contraseña"
+                    class="form-control border-secondary"
+                    placeholder="Ingrese contraseña"
+                    required>
+            </div>
+
+            <!-- ROL -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Rol</label>
+                <select name="rol" class="form-control border-secondary" required>
+                    <option value="">Seleccione rol</option>
+                    <option>Gerente</option>
+                    <option>Recepcionista</option>
+                    <option>Mantenimiento</option>
+                    <option>Bar</option>
+                    <option>Lavandería</option>
+                </select>
+            </div>
+
+            <!-- ESTADO -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Estado</label>
+                <select name="estado" class="form-control border-secondary">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+
+            <!-- BOTÓN -->
+            <div class="col-md-12 d-flex justify-content-end">
+                <button class="btn btn-dark border-secondary fw-semibold">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Guardar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- BUSCADOR -->
+<div class="card bg-white border-secondary mb-2">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2">
+            <div class="col-md-10">
+                <input type="text" name="buscar"
+                    class="form-control border-secondary"
+                    placeholder="Buscar por usuario o empleado"
+                    value="{{ buscar or '' }}">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-dark w-100 border-secondary">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- TABLA -->
+<div class="card bg-dark border-secondary">
+
+    <div class="card-header bg-black border-secondary d-flex justify-content-between">
+        <span class="text-white fw-semibold">Listado de Usuarios</span>
+        <span class="badge bg-secondary">{{ usuarios|length }}</span>
+    </div>
+
+    <div class="card-body p-0">
+
+        {% if usuarios|length == 0 %}
+        <div class="text-center text-secondary py-5 bg-light">
+            <i class="fa-regular fa-folder-open fa-2x mb-2 d-block" style="color:#ccc;"></i>
+            No hay usuarios registrados
+        </div>
+        {% else %}
+
+        <div class="table-responsive">
+            <table class="table table-hover text-center mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Último acceso</th>
+
+                        {% if session["rol"] == "Gerente" %}
+                        <th>Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td >{{ u.nombre_empleado }}</td>
+                        <td>{{ u.usuario }}</td>
+                        <td>{{ u.rol }}</td>
+                        <td>{{ u.estado }}</td>
+                        <td>{{ u.ultimo_login or '—' }}</td>
+
+                        {% if session["rol"] == "Gerente" %}
+                        <td>
+                            <a href="" class="btn btn-outline-secondary btn-sm">
+                                Editar
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

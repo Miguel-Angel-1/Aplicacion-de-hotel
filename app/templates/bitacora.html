@@ -1,0 +1,51 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="card">
+    <form method="get" class="row g-2 mb-3 p-3">
+        <div class="col-md-10">
+            <input type="text" class="form-control" name="buscar" placeholder="Buscar por usuario o acción"
+                value="{{ buscar or '' }}">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        Bitácora del Sistema
+    </div>
+    <div class="card-body">
+
+        <table class="table table-striped text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Tabla</th>
+                    <th>Descripcion</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bitacora %}
+                <tr>
+                    <td>{{ b.usuario }}</td>
+                    <td>{{ b.accion }}</td>
+                    <td>{{ b.tabla_afectada }}</td>
+                    <td>{{ b.descripcion }}</td>
+                    <td>{{ b.fecha }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+    <div class="position-fixed bottom-0 end-0 p-4">
+        <a href="/respaldo" class="btn btn-success shadow">
+            💾 Respaldar BD
+        </a>
+    </div>
+</div>
+
+{% endblock %}
