@@ -5,11 +5,11 @@ DROP TABLE IF EXISTS pagos;
 DROP TABLE IF EXISTS solicita;
 DROP TABLE IF EXISTS reservacion;
 DROP TABLE IF EXISTS mantenimiento;
+DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS servicio;
 DROP TABLE IF EXISTS habitacion;
 DROP TABLE IF EXISTS huesped;
 DROP TABLE IF EXISTS empleado;
-DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS bitacora;
 
 CREATE TABLE huesped(
@@ -18,28 +18,28 @@ CREATE TABLE huesped(
     apellidoP VARCHAR(20) NOT NULL,
     apellidoM VARCHAR(20),
     identificacion VARCHAR(20) NOT NULL UNIQUE,
-    email VARCHAR(50) NOT NULL,
+    email VARCHAR(80) NOT NULL UNIQUE,
     telefono VARCHAR(15) NOT NULL
 );
 
 CREATE TABLE empleado(
     id_empleado INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(20) NOT NULL,
+    nombre VARCHAR(80) NOT NULL,
     puesto ENUM("Recepcionista","Mantenimiento","Bar","Lavandería","Gerente") NOT NULL
 );
 
 CREATE TABLE habitacion(
     num_habitacion INT AUTO_INCREMENT PRIMARY KEY,
     tipo ENUM('Estándar','Superior','Deluxe','Junior Suite','Suite') NOT NULL,
-    precio DECIMAL(10,2) NOT NULL,
+    precio DECIMAL(10,2) NOT NULL CHECK(precio >= 0),
     estado ENUM('Disponible',"Ocupada",'Mantenimiento') NOT NULL
 );
 
 CREATE TABLE servicio(
     id_servicio INT AUTO_INCREMENT PRIMARY KEY,
     tipo ENUM("Bar","Lavandería") NOT NULL,
-    precio DECIMAL(10,2) NOT NULL,
-    descripcion VARCHAR(200) NOT NULL
+    precio DECIMAL(10,2) NOT NULL CHECK(precio >= 0),
+    descripcion VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE mantenimiento(
@@ -48,8 +48,8 @@ CREATE TABLE mantenimiento(
     id_empleado INT NOT NULL,
     fecha_reporte DATE NOT NULL DEFAULT (CURRENT_DATE),
     estado_reporte ENUM("Pendiente","En proceso","Finalizado") NOT NULL DEFAULT "Pendiente",
-    FOREIGN KEY(num_habitacion) REFERENCES habitacion(num_habitacion),
-    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado)
+    FOREIGN KEY(num_habitacion) REFERENCES habitacion(num_habitacion) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE reservacion(
@@ -60,34 +60,35 @@ CREATE TABLE reservacion(
     fecha_reserva DATE NOT NULL DEFAULT (CURRENT_DATE),
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE NOT NULL,
-    detalles VARCHAR(200),
-    precio DECIMAL(10,2) NOT NULL,
-    estado ENUM('activa','pendiente','finalizada','cancelada') DEFAULT 'activa',
-    FOREIGN KEY(id_huesped) REFERENCES huesped(id_huesped),
-    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado),
-    FOREIGN KEY(num_habitacion) REFERENCES habitacion(num_habitacion)
+    detalles VARCHAR(255),
+    precio DECIMAL(10,2) NOT NULL CHECK(precio >= 0),
+    estado ENUM('activa','pendiente','finalizada','cancelada') NOT NULL DEFAULT 'activa',
+    CHECK(fecha_fin > fecha_inicio),
+    FOREIGN KEY(id_huesped) REFERENCES huesped(id_huesped) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY(num_habitacion) REFERENCES habitacion(num_habitacion) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE pagos(
     id_pago INT AUTO_INCREMENT PRIMARY KEY,
     id_reservacion INT NOT NULL,
     id_empleado INT NOT NULL,
-    metodo_pago ENUM('Tarjeta','Efectivo'),
+    metodo_pago ENUM('Tarjeta','Efectivo') NOT NULL,
     fecha_pago DATE NOT NULL DEFAULT (CURRENT_DATE),
-    monto_total DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY(id_reservacion) REFERENCES reservacion(id_reservacion),
-    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado)
+    monto_total DECIMAL(10,2) NOT NULL CHECK(monto_total > 0),
+    FOREIGN KEY(id_reservacion) REFERENCES reservacion(id_reservacion) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE solicita(
     id_solicita INT AUTO_INCREMENT PRIMARY KEY,
     id_reservacion INT NOT NULL,
     id_servicio INT NOT NULL,
-    subtotal DECIMAL(10,2),
+    subtotal DECIMAL(10,2) CHECK(subtotal >= 0),
     fecha DATE NOT NULL DEFAULT (CURRENT_DATE),
-    cantidad INT NOT NULL,
-    FOREIGN KEY(id_reservacion) REFERENCES reservacion(id_reservacion),
-    FOREIGN KEY(id_servicio) REFERENCES servicio(id_servicio)
+    cantidad INT NOT NULL CHECK(cantidad > 0),
+    FOREIGN KEY(id_reservacion) REFERENCES reservacion(id_reservacion) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(id_servicio) REFERENCES servicio(id_servicio) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE bitacora(
@@ -109,7 +110,7 @@ CREATE TABLE usuarios(
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     ultimo_login DATETIME NULL,
-    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado)
+    FOREIGN KEY(id_empleado) REFERENCES empleado(id_empleado) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 INSERT INTO huesped(nombre, apellidoP, apellidoM, identificacion, email, telefono) VALUES
@@ -311,3 +312,13 @@ INSERT INTO usuarios(id_empleado,usuario,contraseña,rol) VALUES
 (18,'bar4','1234','Bar'),
 (19,'lava4','1234','Lavandería'),
 (20,'recep5','1234','Recepcionista');
+
+-- INDICES 
+-- Reservaciones por fechas
+CREATE INDEX idx_reserva_fechas ON reservacion(fecha_inicio, fecha_fin);
+-- Reservaciones por habitación
+CREATE INDEX idx_reservacion_habitacion ON reservacion(num_habitacion);
+-- Reservaciones por estado
+CREATE INDEX idx_reservacion_estado ON reservacion(estado);
+-- Mantenimientos por habitación
+CREATE INDEX idx_mantenimiento_habitacion ON mantenimiento(num_habitacion);

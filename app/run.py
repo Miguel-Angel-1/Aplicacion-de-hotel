@@ -327,7 +327,6 @@ def eliminar_empleado(id):
 @requiere_rol("Gerente", "Recepcionista")
 def huespedes():
 
-    # ================= POST =================
     if request.method == "POST":
         nombre = request.form.get("nombre", "").strip()
         apellidoP = request.form.get("apellidoP", "").strip()
@@ -359,7 +358,6 @@ def huespedes():
                 flash("Error al registrar huésped", "danger")
         return redirect(url_for("huespedes"))
 
-    # ================= GET =================
     buscar = request.args.get("buscar", "").strip()
 
     try:
@@ -464,7 +462,6 @@ def verificar_disponibilidad():
     inicio = request.args.get("inicio")
     fin = request.args.get("fin")
 
-    # 🔥 evitar query inválido
     if not habitacion or not inicio or not fin:
         return {"ocupada": False}
 
@@ -476,12 +473,10 @@ def verificar_disponibilidad():
             LIMIT 1
         """, (habitacion, fin, inicio), fetch=True)
 
-        # 🔥 si hubo error en SQL
         if not isinstance(conflicto, list):
             print("Error SQL:", conflicto)
             return {"ocupada": False}
 
-        # 🔥 forma correcta
         return {"ocupada": bool(conflicto)}
 
     except Exception as e:
@@ -494,7 +489,6 @@ def verificar_disponibilidad():
 @requiere_rol("Gerente", "Recepcionista")
 def reservaciones():
 
-    # ================= POST =================
     if request.method == "POST":
 
         id_huesped = request.form.get("id_huesped")
@@ -556,12 +550,10 @@ def reservaciones():
             query += " AND num_habitacion=%s"
             params.append(habitacion)
 
-        # 🔥 CORRECCIÓN REAL DE FECHAS (traslape correcto)
         if inicio and fin:
             query += "AND (fecha_inicio <= %s AND fecha_fin >= %s)"
             params.extend([fin, inicio])
 
-        # 🔥 FILTRO ESTADO usando la vista
         if filtro == "activas":
             query += " AND estado='activa'"
 
@@ -832,7 +824,6 @@ def mantenimiento():
 @requiere_rol("Gerente")
 def usuarios():
 
-    # ================= POST =================
     if request.method == "POST":
 
         id_empleado = request.form.get("id_empleado")
@@ -868,7 +859,6 @@ def usuarios():
 
         return redirect(url_for("usuarios"))
 
-    # ================= GET =================
     buscar = request.args.get("buscar", "").strip()
 
     try:
@@ -904,7 +894,6 @@ def usuarios():
         usuarios = []
         flash("Error al cargar usuarios", "danger")
 
-    # 🔥 Para el SELECT del formulario (empleados disponibles)
     try:
         empleados = ejecutar_query("""
             SELECT e.id_empleado, e.nombre
