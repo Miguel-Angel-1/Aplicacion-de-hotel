@@ -1,50 +1,68 @@
 {% extends "index.html" %}
 {% block content %}
-<div class="card">
-    <form method="get" class="row g-2 mb-3 p-3">
-        <div class="col-md-10">
-            <input type="text" class="form-control" name="buscar" placeholder="Buscar por usuario o acción"
-                value="{{ buscar or '' }}">
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-primary w-100">Buscar</button>
-        </div>
-    </form>
+<div class="card bg-white border-secondary mb-2">
+    <div class="card-body py-3">
+        <form method="get" class="row g-2">
+            <div class="col-md-10">
+                <input type="text" class="form-control bg-light border-secondary text-black" name="buscar"
+                    placeholder="Buscar por nombre o puesto o ID" value="{{ buscar or '' }}">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-dark text-white w-100 border-secondary">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
-<div class="card">
-    <div class="card-header bg-dark text-white">
-        Bitácora del Sistema
-    </div>
-    <div class="card-body">
 
-        <table class="table table-striped text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>Usuario</th>
-                    <th>Acción</th>
-                    <th>Tabla</th>
-                    <th>Descripcion</th>
-                    <th>Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for b in bitacora %}
-                <tr>
-                    <td>{{ b.usuario }}</td>
-                    <td>{{ b.accion }}</td>
-                    <td>{{ b.tabla_afectada }}</td>
-                    <td>{{ b.descripcion }}</td>
-                    <td>{{ b.fecha }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
+<div class="card bg-dark border-secondary">
+    <div class="card-header bg-black border-secondary d-flex justify-content-between align-items-center">
+        <span class="text-white fw-semibold mb-0">
+            Bitácora del Sistema
+        </span>
+        <div class="d-flex align-items-center gap-2">
+            <a href="/respaldo" class="badge bg-secondary text-white fw-semibold text-decoration-none">
+                <i class="fa-solid fa-database me-1"></i>
+                Respaldar BD
+            </a>
+            <span class="badge bg-secondary text-white">
+                {{ bitacora|length }} registro{{ 's' if bitacora|length != 1 else '' }}
+            </span>
+        </div>
     </div>
-    <div class="position-fixed bottom-0 end-0 p-4">
-        <a href="/respaldo" class="btn btn-success shadow">
-            💾 Respaldar BD
-        </a>
+    <div class="card-body p-0">
+        {% if bitacora|length == 0 %}
+        <div class="text-center text-secondary py-5 bg-light">
+            <i class="fa-regular fa-folder-open fa-2x mb-2 d-block"></i>
+            No hay registros en la bitácora
+        </div>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-hover text-center mb-0 align-middle">
+                <thead class="border-secondary">
+                    <tr>
+                        <th class="border-secondary py-3">Usuario</th>
+                        <th class="border-secondary py-3">Acción</th>
+                        <th class="border-secondary py-3">Tabla</th>
+                        <th class="border-secondary py-3">Descripción</th>
+                        <th class="border-secondary py-3">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bitacora %}
+                    <tr class="border-secondary">
+                        <td class="text-outline-secondary">{{ b.usuario }}</td>
+                        <td class="text-outline-secondary">{{ b.accion }}</td>
+                        <td class="text-outline-secondary">{{ b.tabla_afectada }}</td>
+                        <td class="text-outline-secondary">{{ b.descripcion }}</td>
+                        <td class="text-outline-secondary">{{ b.fecha }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     </div>
 </div>
 

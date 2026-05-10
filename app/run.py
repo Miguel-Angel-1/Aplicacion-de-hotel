@@ -102,7 +102,7 @@ def registrar_bitacora(usuario, accion, tabla, descripcion):
         conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute("""INSERT INTO bitacora (usuario, accion, tabla_afectada, descripcion) VALUES (%s, %s, %s, %s)""", (usuario, accion, tabla, descripcion))
+        cursor.callproc("sp_registrar_bitacora", (usuario, accion, tabla, descripcion))
 
         conn.commit()
         cursor.close()
@@ -819,6 +819,7 @@ def mantenimiento():
     return render_template("mantenimiento/mantenimiento.html",mantenimiento=mantenimiento,buscar=buscar,estado=estado,fecha=fecha)
 
 # ================= USUARIOS =================
+# ================= USUARIOS =================
 @app.route("/usuarios", methods=["GET", "POST"])
 @login_requerido
 @requiere_rol("Gerente")
@@ -829,28 +830,15 @@ def usuarios():
         id_empleado = request.form.get("id_empleado")
         usuario = request.form.get("usuario", "").strip()
         contraseña = request.form.get("contraseña", "")
-        rol = request.form.get("rol")
         estado = request.form.get("estado")
 
-        if not id_empleado or not usuario or not contraseña or not rol:
+        if not id_empleado or not usuario or not contraseña:
             flash("Todos los campos son obligatorios", "danger")
             return redirect(url_for("usuarios"))
 
         try:
-            ejecutar_query("""
-    INSERT INTO usuarios (id_empleado, usuario, contraseña, rol, estado)
-    SELECT id_empleado, %s, %s, puesto, %s
-    FROM empleado
-    WHERE id_empleado = %s
-""", (usuario, contraseña, estado, id_empleado))
-
-            registrar_bitacora(
-                session.get("usuario"),
-                "INSERT",
-                "usuarios",
-                f"Se creó usuario {usuario}"
-            )
-
+            ejecutar_query("""INSERT INTO usuarios (id_empleado, usuario, contraseña, rol, estado) SELECT id_empleado, %s, %s, puesto, %s FROM empleado WHERE id_empleado = %s""", (usuario, contraseña, estado, id_empleado))
+            registrar_bitacora(session.get("usuario"),"INSERT", "usuarios", f"Se creó usuario {usuario}")
             flash("Usuario creado correctamente", "success")
 
         except Exception as e:
@@ -864,30 +852,11 @@ def usuarios():
     try:
         if buscar:
             if buscar.isdigit():
-                usuarios = ejecutar_query("""
-                    SELECT u.*, e.nombre AS nombre_empleado
-                    FROM usuarios u
-                    JOIN empleado e ON u.id_empleado = e.id_empleado
-                    WHERE u.usuario LIKE %s
-                       OR u.rol LIKE %s
-                       OR u.estado LIKE %s
-                       OR u.id_usuario = %s
-                """, (f"%{buscar}%", f"%{buscar}%", f"%{buscar}%", int(buscar)), fetch=True)
+                usuarios = ejecutar_query("""SELECT u.*, e.nombre AS nombre_empleado, e.puesto FROM usuarios u JOIN empleado e ON u.id_empleado = e.id_empleado WHERE u.usuario LIKE %s OR e.puesto LIKE %s OR u.estado LIKE %s OR u.id_usuario = %s""", (f"%{buscar}%", f"%{buscar}%", f"%{buscar}%", int(buscar)), fetch=True)
             else:
-                usuarios = ejecutar_query("""
-                    SELECT u.*, e.nombre AS nombre_empleado
-                    FROM usuarios u
-                    JOIN empleado e ON u.id_empleado = e.id_empleado
-                    WHERE u.usuario LIKE %s
-                       OR u.rol LIKE %s
-                       OR u.estado LIKE %s
-                """, (f"%{buscar}%", f"%{buscar}%", f"%{buscar}%"), fetch=True)
+                usuarios = ejecutar_query("""SELECT u.*, e.nombre AS nombre_empleado, e.puesto FROM usuarios u JOIN empleado e ON u.id_empleado = e.id_empleado WHERE u.usuario LIKE %s OR e.puesto LIKE %s OR u.estado LIKE %s""", (f"%{buscar}%", f"%{buscar}%", f"%{buscar}%"), fetch=True)
         else:
-            usuarios = ejecutar_query("""
-                SELECT u.*, e.nombre AS nombre_empleado
-                FROM usuarios u
-                JOIN empleado e ON u.id_empleado = e.id_empleado
-            """, fetch=True)
+            usuarios = ejecutar_query("""SELECT u.*, e.nombre AS nombre_empleado, e.puesto FROM usuarios u JOIN empleado e ON u.id_empleado = e.id_empleado""", fetch=True)
 
     except Exception as e:
         print(e)
@@ -895,21 +864,13 @@ def usuarios():
         flash("Error al cargar usuarios", "danger")
 
     try:
-        empleados = ejecutar_query("""
-            SELECT e.id_empleado, e.nombre
-            FROM empleado e
-            LEFT JOIN usuarios u ON e.id_empleado = u.id_empleado
-            WHERE u.id_empleado IS NULL
-        """, fetch=True)
-    except:
+        empleados = ejecutar_query("""SELECT e.id_empleado, e.nombre, e.puesto FROM empleado e LEFT JOIN usuarios u ON e.id_empleado = u.id_empleado WHERE u.id_empleado IS NULL""", fetch=True)
+
+    except Exception as e:
+        print(e)
         empleados = []
 
-    return render_template(
-        "usuario/usuarios.html",
-        usuarios=usuarios,
-        empleados=empleados,
-        buscar=buscar
-    )
+    return render_template("usuario/usuarios.html", usuarios=usuarios, empleados=empleados, buscar=buscar)
 
 @app.route("/bitacora")
 @requiere_permiso("bitacora", "READ")

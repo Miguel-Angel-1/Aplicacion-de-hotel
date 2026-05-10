@@ -57,8 +57,122 @@
         }
 
         @keyframes zoom {
-            from { transform: translate(-50%, -50%) scale(0.1); }
-            to { transform: translate(-50%, -50%) scale(1); }
+            from {
+                transform: translate(-50%, -50%) scale(0.1);
+            }
+
+            to {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    </style>
+    <style>
+        /* ===== SECRETO VIDEOJUEGO ===== */
+
+        .secret-game-link {
+            animation: rainbowGlow 2s linear infinite;
+            font-weight: bold !important;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+        }
+
+        .secret-game-link:hover {
+            transform: translateX(3px);
+        }
+
+        @keyframes rainbowGlow {
+
+            0% {
+                color: #ff0000 !important;
+                text-shadow: 0 0 8px #ff0000;
+            }
+
+            20% {
+                color: #ffff00 !important;
+                text-shadow: 0 0 8px #ffff00;
+            }
+
+            40% {
+                color: #00ff00 !important;
+                text-shadow: 0 0 8px #00ff00;
+            }
+
+            60% {
+                color: #00ffff !important;
+                text-shadow: 0 0 8px #00ffff;
+            }
+
+            80% {
+                color: #ff00ff !important;
+                text-shadow: 0 0 8px #ff00ff;
+            }
+
+            100% {
+                color: #ff0000 !important;
+                text-shadow: 0 0 8px #ff0000;
+            }
+        }
+
+        /* ===== MODAL VIDEOJUEGO ===== */
+
+        .game-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 999999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .game-container {
+            width: 90%;
+            height: 90%;
+            background: #000;
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+            animation: zoomGame .2s ease;
+        }
+
+        .game-container iframe {
+            width: 100%;
+            height: 100%;
+        }
+
+        .close-game {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        .close-game:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(220, 53, 69, .7);
+        }
+
+        @keyframes zoomGame {
+            from {
+                transform: scale(.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -68,7 +182,7 @@
     <nav class="navbar navbar-dark bg-black shadow-sm px-4">
 
         <a href="{{ url_for('index') }}"
-           class="d-flex align-items-center rounded-pill px-3 py-1 text-decoration-none border border-secondary">
+            class="d-flex align-items-center rounded-pill px-3 py-1 text-decoration-none border border-secondary">
             <img src="{{ url_for('static', filename='img/logo.png') }}" width="50" class="me-2">
             <span class="fs-6 text-white fw-medium">Página principal</span>
         </a>
@@ -78,8 +192,8 @@
             {% if not session.get("usuario") %}
 
             <a href="{{ url_for('login') }}"
-               class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center"
-               style="width:50px; height:50px;">
+                class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center"
+                style="width:50px; height:50px;">
                 <i class="fa-regular fa-user"></i>
             </a>
 
@@ -87,14 +201,14 @@
 
             <div class="dropdown">
 
-                <button class="btn btn-outline-light border-secondary px-3"
-                        data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                <button class="btn btn-outline-light border-secondary px-3" data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside">
                     <span class="me-2 fw-medium">Menu</span>
                     <i class="fa-solid fa-bars"></i>
                 </button>
 
                 <div class="dropdown-menu dropdown-menu-end p-3 bg-black text-white border-secondar"
-                     style="min-width:240px; border-color: #eee !important; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);">
+                    style="min-width:240px; border-color: #eee !important; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);">
 
                     {% if session.get("rol") %}
                     {% for ruta, nombre in MENU.get(session["rol"], []) %}
@@ -104,12 +218,20 @@
                     {% endfor %}
                     {% endif %}
 
+                    <a id="secretGameItem" href="#" onclick="abrirJuego()"
+                        class="dropdown-item rounded-1 mb-1 secret-game-link" style="display:none;">
+
+                        🎮 Videojuego
+
+                    </a>
+
                     <hr class="my-2" style="border-color: #eee;">
 
                     <div class="text-center">
                         <div class="mb-2">
-                            <span class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
-                                  style="width:36px; height:36px;">
+                            <span
+                                class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                style="width:36px; height:36px;">
                                 <i class="fa-regular fa-user fa-sm"></i>
                             </span>
                         </div>
@@ -142,8 +264,8 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
-        <div class="toast align-items-center text-bg-dark border-secondary border mb-2"
-             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
+        <div class="toast align-items-center text-bg-dark border-secondary border mb-2" role="alert"
+            aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
             <div class="d-flex">
                 <div class="toast-body">{{ message }}</div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
@@ -191,6 +313,153 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <div id="gameModal" class="game-modal">
+
+        <div class="game-container">
+
+            <button class="close-game" onclick="cerrarJuego()">
+
+                ✖
+
+            </button>
+
+            <iframe src="{{ url_for('static', filename='secreto.html') }}" frameborder="0">
+            </iframe>
+
+        </div>
+
+    </div>
+    <script>
+
+        /* ===== MOSTRAR SI YA ESTÁ DESBLOQUEADO ===== */
+
+        if (localStorage.getItem("secret_game") === "true") {
+
+            const item = document.getElementById("secretGameItem");
+
+            if (item) {
+                item.style.display = "block";
+            }
+        }
+
+        /* ===== COMBINACIONES SECRETAS ===== */
+
+        document.addEventListener("keydown", function (e) {
+
+            /* ===== ACTIVAR ===== */
+
+            if (e.shiftKey && e.key.toLowerCase() === "s") {
+
+                localStorage.setItem("secret_game", "true");
+
+                sessionStorage.setItem(
+                    "secret_flash",
+                    "unlock"
+                );
+
+                location.reload();
+            }
+
+            /* ===== DESACTIVAR ===== */
+
+            if (e.shiftKey && e.key.toLowerCase() === "c") {
+
+                localStorage.removeItem("secret_game");
+
+                sessionStorage.setItem(
+                    "secret_flash",
+                    "lock"
+                );
+
+                location.reload();
+            }
+
+        });
+
+        /* ===== TOAST ===== */
+
+        window.addEventListener("load", function () {
+
+            const estado =
+                sessionStorage.getItem("secret_flash");
+
+            if (estado) {
+
+                sessionStorage.removeItem("secret_flash");
+
+                const toast = document.createElement("div");
+
+                toast.className =
+                    "toast align-items-center border-0 show position-fixed bottom-0 end-0 m-3";
+
+                toast.style.zIndex = "999999";
+
+                /* ===== DESBLOQUEADO ===== */
+
+                if (estado === "unlock") {
+
+                    toast.classList.add("text-bg-warning");
+
+                    toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body text-dark fw-semibold">
+                            ✨ Has desbloqueado el secreto
+                        </div>
+
+                        <button type="button"
+                                class="btn-close me-2 m-auto"
+                                onclick="this.parentElement.parentElement.remove()">
+                        </button>
+                    </div>
+                `;
+                }
+
+                /* ===== BLOQUEADO ===== */
+
+                if (estado === "lock") {
+
+                    toast.classList.add("text-bg-danger");
+
+                    toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body fw-semibold">
+                            🔒 Se ha ocultado el secreto
+                        </div>
+
+                        <button type="button"
+                                class="btn-close btn-close-white me-2 m-auto"
+                                onclick="this.parentElement.parentElement.remove()">
+                        </button>
+                    </div>
+                `;
+                }
+
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+
+                    toast.remove();
+
+                }, 4000);
+            }
+        });
+
+        /* ===== ABRIR / CERRAR ===== */
+
+        function abrirJuego() {
+
+            document.getElementById("gameModal")
+                .style.display = "flex";
+        }
+
+        function cerrarJuego() {
+
+            document.getElementById("gameModal")
+                .style.display = "none";
+        }
+
+    </script>
 
 </body>
 
