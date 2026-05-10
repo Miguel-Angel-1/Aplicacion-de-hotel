@@ -22,7 +22,8 @@
                 <label class="form-label fw-semibold text-muted mb-1">
                     Tipo de Habitación
                 </label>
-                <select name="tipo" class="form-select bg-light border-secondary text-black" required>
+                <select name="tipo" id="tipoHabitacion" class="form-select bg-light border-secondary text-black"
+                    required>
                     <option value="">Seleccione un tipo de habitación</option>
                     <option value="Estándar">Estándar</option>
                     <option value="Superior">Superior</option>
@@ -36,9 +37,9 @@
                 <label class="form-label fw-semibold text-muted mb-1">
                     Precio
                 </label>
-                <input type="number" step="0.01" name="precio"
+                <input type="number" step="0.01" name="precio" id="precioHabitacion"
                     class="form-control bg-light border-secondary text-black"
-                    placeholder="Introduzca un precio para asignar a la habitación" required>
+                    placeholder="El precio se asignará automáticamente" readonly required>
             </div>
 
             <div class="col-md-6">
@@ -47,9 +48,9 @@
                 </label>
                 <select name="estado" class="form-select bg-light border-secondary text-black" required>
                     <option value="">Seleccione el estado de la habitación</option>
-                    <option value="Estándar">Disponible</option>
-                    <option value="Superior">Ocupada</option>
-                    <option value="Deluxe">Mantenimiento</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="Ocupada">Ocupada</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
                 </select>
             </div>
 
@@ -168,5 +169,40 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+
+    const precios = {
+
+        "Estándar": 400,
+        "Superior": 600,
+        "Deluxe": 800,
+        "Junior Suite": 1200,
+        "Suite": 1500
+
+    };
+
+    const tipoHabitacion =
+        document.getElementById("tipoHabitacion");
+
+    const precioHabitacion =
+        document.getElementById("precioHabitacion");
+
+    tipoHabitacion.addEventListener("change", function () {
+
+        const tipo = this.value;
+
+        if (precios[tipo]) {
+
+            precioHabitacion.value = precios[tipo];
+
+        } else {
+
+            precioHabitacion.value = "";
+        }
+
+    });
+
+</script>
 
 {% endblock %}

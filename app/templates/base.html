@@ -324,7 +324,7 @@
 
             </button>
 
-            <iframe src="{{ url_for('static', filename='secreto.html') }}" frameborder="0">
+            <iframe id="gameFrame" frameborder="0">
             </iframe>
 
         </div>
@@ -451,12 +451,18 @@
 
             document.getElementById("gameModal")
                 .style.display = "flex";
+
+            document.getElementById("gameFrame")
+                .src = "{{ url_for('static', filename='secreto.html') }}";
         }
 
         function cerrarJuego() {
 
             document.getElementById("gameModal")
                 .style.display = "none";
+
+            document.getElementById("gameFrame")
+                .src = "";
         }
 
     </script>

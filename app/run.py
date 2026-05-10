@@ -819,7 +819,6 @@ def mantenimiento():
     return render_template("mantenimiento/mantenimiento.html",mantenimiento=mantenimiento,buscar=buscar,estado=estado,fecha=fecha)
 
 # ================= USUARIOS =================
-# ================= USUARIOS =================
 @app.route("/usuarios", methods=["GET", "POST"])
 @login_requerido
 @requiere_rol("Gerente")
