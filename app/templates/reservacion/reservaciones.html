@@ -25,7 +25,7 @@
                     </option>
 
                     {% for h in huespedes %}
-                    <option value="{{ h.id_huesped }}" data-nombre="{{ h.nombre }} {{ h.apellidoP }}"
+                    <option value="{{ h.id_huesped }}" data-nombre="{{ h.nombre }} {{ h.apellidoP }} {{ h.apellidoM}}"
                         data-telefono="{{ h.telefono }}" data-email="{{ h.email }}">
 
                         {{ h.identificacion }}
@@ -308,10 +308,12 @@
 
 <script>
 
+    // ================= HUESPED =================
+
     const selectHuesped =
         document.getElementById("id_huesped");
 
-    const nombre =
+    const nombreHuesped =
         document.getElementById("nombre_huesped");
 
     selectHuesped.addEventListener("change", () => {
@@ -321,36 +323,219 @@
             selectHuesped.selectedIndex
             ];
 
-        nombre.value =
+        nombreHuesped.value =
             option.dataset.nombre || "";
 
     });
 
-</script>
 
-<script>
-    const inputs = document.querySelectorAll(".filtro-input");
-    const badge = document.getElementById("filtroCount");
-    const limpiar = document.getElementById("limpiarFiltros");
+    // ================= FILTROS =================
 
-    function actualizar() {
+    const inputs =
+        document.querySelectorAll(".filtro-input");
+
+    const badge =
+        document.getElementById("filtroCount");
+
+    const limpiar =
+        document.getElementById("limpiarFiltros");
+
+    function actualizarFiltros() {
+
         let c = 0;
-        inputs.forEach(i => { if (i.value) c++; });
+
+        inputs.forEach(i => {
+
+            if (i.value) {
+                c++;
+            }
+
+        });
 
         if (c > 0) {
+
             badge.textContent = c;
             badge.classList.remove("d-none");
+
         } else {
+
             badge.classList.add("d-none");
+
         }
     }
 
-    inputs.forEach(i => i.addEventListener("input", actualizar));
+    inputs.forEach(i => {
+
+        i.addEventListener("input", actualizarFiltros);
+
+    });
 
     limpiar.onclick = () => {
+
         inputs.forEach(i => i.value = "");
-        actualizar();
+
+        actualizarFiltros();
+
     };
+
+
+    // ================= RESERVACIONES =================
+
+    const inicio =
+        document.getElementById("fecha_inicio");
+
+    const fin =
+        document.getElementById("fecha_fin");
+
+    const noches =
+        document.getElementById("noches");
+
+    const habitacion =
+        document.getElementById("habitacion");
+
+    const tipo =
+        document.getElementById("tipo");
+
+    const precioNoche =
+        document.getElementById("precio_noche");
+
+    const total =
+        document.getElementById("total");
+
+
+    // ================= CALCULAR NOCHES =================
+
+    function calcularNoches() {
+
+        if (!inicio.value || !fin.value) {
+
+            noches.value = "";
+
+            return;
+        }
+
+        const fecha1 =
+            new Date(inicio.value);
+
+        const fecha2 =
+            new Date(fin.value);
+
+        const diferencia =
+            (fecha2 - fecha1) / (1000 * 60 * 60 * 24);
+
+        if (diferencia <= 0) {
+
+            alert("La fecha final debe ser mayor a la fecha inicial");
+
+            noches.value = "";
+
+            habitacion.innerHTML =
+                `<option value="">Seleccione fechas válidas</option>`;
+
+            limpiarDatosHabitacion();
+
+            return;
+        }
+
+        noches.value = diferencia;
+
+        cargarHabitaciones();
+    }
+
+
+    // ================= LIMPIAR DATOS =================
+
+    function limpiarDatosHabitacion() {
+
+        tipo.value = "";
+        precioNoche.value = "";
+        total.value = "";
+
+    }
+
+
+    // ================= CARGAR HABITACIONES =================
+
+    async function cargarHabitaciones() {
+
+        limpiarDatosHabitacion();
+
+        habitacion.innerHTML =
+            `<option>Cargando habitaciones...</option>`;
+
+        try {
+
+            const response =
+                await fetch(`/habitaciones_disponibles?inicio=${inicio.value}&fin=${fin.value}`);
+
+            const habitaciones =
+                await response.json();
+
+            habitacion.innerHTML =
+                `<option value="">Seleccione habitación</option>`;
+
+            if (habitaciones.length === 0) {
+
+                habitacion.innerHTML =
+                    `<option value="">No hay habitaciones disponibles</option>`;
+
+                return;
+            }
+
+            habitaciones.forEach(h => {
+
+                habitacion.innerHTML += `
+                <option
+                    value="${h.num_habitacion}"
+                    data-tipo="${h.tipo}"
+                    data-precio="${h.precio}">
+                    Habitación ${h.num_habitacion} - ${h.tipo}
+                </option>
+            `;
+            });
+
+        } catch (error) {
+
+            console.log(error);
+
+            habitacion.innerHTML =
+                `<option value="">Error al cargar habitaciones</option>`;
+        }
+    }
+
+
+    // ================= CAMBIO DE HABITACION =================
+
+    habitacion.addEventListener("change", () => {
+
+        const option =
+            habitacion.options[
+            habitacion.selectedIndex
+            ];
+
+        const tipoHabitacion =
+            option.dataset.tipo || "";
+
+        const precioHabitacion =
+            option.dataset.precio || 0;
+
+        tipo.value =
+            tipoHabitacion;
+
+        precioNoche.value =
+            parseFloat(precioHabitacion).toFixed(2);
+
+        total.value =
+            (parseFloat(precioHabitacion) * parseInt(noches.value)).toFixed(2);
+    });
+
+
+    // ================= EVENTOS =================
+
+    inicio.addEventListener("change", calcularNoches);
+
+    fin.addEventListener("change", calcularNoches);
+
 </script>
 
 {% endblock %}

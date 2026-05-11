@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session, jsonify
 import mysql.connector
 from config import db_config, MENU, PERMISOS
 import os
@@ -144,6 +144,7 @@ def login():
                     u.usuario,
                     u.contraseña,
                     u.rol,
+                    u.id_empleado,
                     e.nombre AS nombre_empleado
                 FROM usuarios u
                 INNER JOIN empleado e ON u.id_empleado = e.id_empleado
@@ -164,11 +165,13 @@ def login():
             
             cursor.execute("""UPDATE usuarios SET ultimo_login = NOW() WHERE id_usuario = %s""", (usuario["id_usuario"],))
             conn.commit()
+            session.clear()
 
             session["usuario"] = usuario["usuario"]
             session["rol"] = usuario["rol"]
             session["id_usuario"] = usuario["id_usuario"]
             session["nombre"] = usuario["nombre_empleado"]
+            session["id_empleado"] = usuario["id_empleado"]
 
             flash("Bienvenido", "success")
             return redirect(url_for("index"))
@@ -234,7 +237,10 @@ def empleados():
             return redirect(url_for("empleados"))
 
         try:
-            ejecutar_query("INSERT INTO empleado (nombre, puesto) VALUES (%s,%s)", (nombre, puesto))
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.callproc("sp_registrar_empleado", (nombre, puesto))
+            conn.commit()
             registrar_bitacora(session.get("usuario"), "INSERT", "empleado", f"Se registró el empleado {nombre}".strip())
             flash("Empleado registrado correctamente", "success")
         except Exception as e:
@@ -346,7 +352,10 @@ def huespedes():
         apellidoM = apellidoM if apellidoM else None
 
         try:
-            ejecutar_query("""INSERT INTO huesped (nombre, apellidoP, apellidoM, identificacion, email, telefono) VALUES (%s,%s,%s,%s,%s,%s)""", (nombre, apellidoP, apellidoM, identificacion, email, telefono))
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.callproc("sp_registrar_huesped", (nombre, apellidoP, apellidoM, identificacion, email, telefono))
+            conn.commit()
             registrar_bitacora(session.get("usuario"), "INSERT", "huesped", f"Se registró huésped {nombre} {apellidoP}")
             flash("Huésped registrado correctamente", "success")
 
@@ -447,41 +456,26 @@ def eliminar_huesped(id):
 
 
 # ================= ENDPOINTS DE RESERVACIONES =================
-@app.route("/buscar_huesped/<int:id>")
-def buscar_huesped(id):
-    huesped = ejecutar_query("SELECT nombre, apellidoP FROM huesped WHERE id_huesped=%s", (id,), fetch=True, one=True)
-
-    if huesped:
-        return {"ok": True, "nombre": f"{huesped['nombre']} {huesped['apellidoP']}"}
-
-    return {"ok": False}
-
-@app.route("/verificar_disponibilidad")
-def verificar_disponibilidad():
-    habitacion = request.args.get("habitacion")
+@app.route("/habitaciones_disponibles")
+def habitaciones_disponibles():
+    
     inicio = request.args.get("inicio")
     fin = request.args.get("fin")
+    
+    habitaciones = ejecutar_query("""
+        SELECT * FROM habitacion
+        WHERE estado='Disponible'
+        AND num_habitacion NOT IN (
+            SELECT num_habitacion FROM reservacion
+            WHERE estado IN ('activa','pendiente')
+            AND (
+                fecha_inicio <= %s
+                AND fecha_fin >= %s
+            )
+        )
+    """, (fin, inicio), fetch=True)
 
-    if not habitacion or not inicio or not fin:
-        return {"ocupada": False}
-
-    try:
-        conflicto = ejecutar_query("""
-            SELECT 1 FROM reservacion
-            WHERE num_habitacion=%s
-            AND (fecha_inicio <= %s AND fecha_fin >= %s)
-            LIMIT 1
-        """, (habitacion, fin, inicio), fetch=True)
-
-        if not isinstance(conflicto, list):
-            print("Error SQL:", conflicto)
-            return {"ocupada": False}
-
-        return {"ocupada": bool(conflicto)}
-
-    except Exception as e:
-        print("Error:", e)
-        return {"ocupada": False}
+    return jsonify(habitaciones)
 
 # ================= RESERVACIONES =================
 @app.route("/reservaciones", methods=["GET", "POST"])
@@ -496,33 +490,18 @@ def reservaciones():
         habitacion = request.form.get("num_habitacion")
         inicio = request.form.get("fecha_inicio")
         fin = request.form.get("fecha_fin")
-        detalles = request.form.get("detalles")
-        precio = request.form.get("precio")
+        detalles = request.form.get("detalles") or None
 
-        if not all([id_huesped, habitacion, inicio, fin, detalles, precio]):
-            if inicio > fin:
-                flash("La fecha final no puede ser menor que la inicial", "danger")
-                return redirect(url_for("reservaciones"))
-            
+        if not all([id_huesped, habitacion, inicio, fin]):
             flash("Todos los campos son obligatorios", "danger")
             return redirect(url_for("reservaciones"))
 
         try:
-            conflicto = ejecutar_query("""SELECT 1 FROM reservacion WHERE num_habitacion=%s AND (fecha_inicio <= %s AND fecha_fin >= %s) LIMIT 1""", (habitacion, fin, inicio), fetch=True)
-
-            if isinstance(conflicto, list) and conflicto:
-                flash("Habitación ocupada en esas fechas", "danger")
-                return redirect(url_for("reservaciones"))
-
-            ejecutar_query("""
-                INSERT INTO reservacion
-                (id_huesped, id_empleado, num_habitacion, fecha_reserva, fecha_inicio, fecha_fin, detalles, precio)
-                VALUES (%s,%s,%s,CURDATE(),%s,%s,%s,%s)
-            """, (id_huesped, id_empleado, habitacion, inicio, fin, detalles, precio))
-
-            
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.callproc("sp_registrar_reservacion", (id_huesped, id_empleado, habitacion, inicio, fin, detalles))
+            conn.commit()
             registrar_bitacora(session.get("usuario"), "INSERT", "reservacion", "Nueva reservación")
-
             flash("Reservación registrada correctamente", "success")
 
         except Exception as e:
@@ -543,35 +522,36 @@ def reservaciones():
         params = []
 
         if buscar:
-            query += " AND (nombre_huesped LIKE %s OR id_reservacion=%s OR num_habitacion=%s)"
+            query += """ AND (nombre_huesped LIKE %s OR id_reservacion=%s OR num_habitacion=%s)"""
             params.extend([f"%{buscar}%", buscar if buscar.isdigit() else 0, buscar if buscar.isdigit() else 0])
-
+            
         if habitacion:
             query += " AND num_habitacion=%s"
             params.append(habitacion)
 
         if inicio and fin:
-            query += "AND (fecha_inicio <= %s AND fecha_fin >= %s)"
+            query += """ AND (fecha_inicio <= %s AND fecha_fin >= %s)"""
             params.extend([fin, inicio])
 
         if filtro == "activas":
             query += " AND estado='activa'"
-
+        
         elif filtro == "historial":
-            query += " AND estado='historial'"
+            query += """ AND estado IN ('finalizada', 'cancelada')"""
 
         reservaciones = ejecutar_query(query, tuple(params), fetch=True)
-        
+
         if not isinstance(reservaciones, list):
-            print("ERROR SQL:", reservaciones)
             reservaciones = []
 
     except Exception as e:
         print(e)
         reservaciones = []
         flash("Error al cargar reservaciones", "danger")
+        
+    huespedes = ejecutar_query("""SELECT h.* FROM huesped h LEFT JOIN reservacion r ON h.id_huesped = r.id_huesped AND r.estado IN ('activa','pendiente') WHERE r.id_huesped IS NULL ORDER BY h.nombre""", fetch=True)
 
-    return render_template("reservacion/reservaciones.html", reservaciones=reservaciones)
+    return render_template("reservacion/reservaciones.html", reservaciones=reservaciones, huespedes=huespedes)
 
 # EDITAR RESERVACION
 @app.route("/reservaciones/editar/<int:id>", methods=["GET", "POST"])
@@ -640,7 +620,10 @@ def habitaciones():
             return redirect(url_for("habitaciones"))
 
         try:
-            ejecutar_query("""INSERT INTO habitacion (tipo, precio, estado) VALUES (%s, %s, %s)""", (tipo, precio, estado))
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.callproc("sp_registrar_habitacion",(tipo, precio, estado))
+            conn.commit()
 
             registrar_bitacora(session.get("usuario"), "INSERT", "habitacion", f"Se registró habitación tipo {tipo}")
 
@@ -836,7 +819,10 @@ def usuarios():
             return redirect(url_for("usuarios"))
 
         try:
-            ejecutar_query("""INSERT INTO usuarios (id_empleado, usuario, contraseña, rol, estado) SELECT id_empleado, %s, %s, puesto, %s FROM empleado WHERE id_empleado = %s""", (usuario, contraseña, estado, id_empleado))
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.callproc("sp_registrar_usuario",(id_empleado, usuario, contraseña, estado))
+            conn.commit()
             registrar_bitacora(session.get("usuario"),"INSERT", "usuarios", f"Se creó usuario {usuario}")
             flash("Usuario creado correctamente", "success")
 

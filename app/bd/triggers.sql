@@ -12,46 +12,7 @@ BEGIN
 END$$
 
 DELIMITER ;
---  2. EVITAR TRASLAPES
-DELIMITER $$
-
-CREATE TRIGGER trg_evitar_traslape_reservaciones
-BEFORE INSERT ON reservacion
-FOR EACH ROW
-BEGIN
-    IF EXISTS (
-        SELECT 1 FROM reservacion
-        WHERE num_habitacion = NEW.num_habitacion
-        AND estado IN ('activa','pendiente')
-        AND (fecha_inicio <= NEW.fecha_fin AND fecha_fin >= NEW.fecha_inicio)
-    ) THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La habitación ya está reservada en esas fechas';
-    END IF;
-END$$
-
-DELIMITER ;
---  3. VALIDAR EMPLEADO EN RESERVACIÓN
-DELIMITER $$
-
-CREATE TRIGGER trg_validar_empleado_reservacion
-BEFORE INSERT ON reservacion
-FOR EACH ROW
-BEGIN
-    DECLARE puesto_emp VARCHAR(20);
-
-    SELECT puesto INTO puesto_emp
-    FROM empleado
-    WHERE id_empleado = NEW.id_empleado;
-
-    IF puesto_emp NOT IN ('Recepcionista','Gerente') THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Empleado no autorizado para realizar reservaciones';
-    END IF;
-END$$
-
-DELIMITER ;
---  4. VALIDAR EMPLEADO EN MANTENIMIENTO
+--  2. VALIDAR EMPLEADO EN MANTENIMIENTO
 DELIMITER $$
 
 CREATE TRIGGER trg_validar_empleado_mantenimiento
@@ -71,7 +32,7 @@ BEGIN
 END$$
 
 DELIMITER ;
---  5. BLOQUEAR HABITACIÓN POR MANTENIMIENTO
+--  3. BLOQUEAR HABITACIÓN POR MANTENIMIENTO
 DELIMITER $$
 
 CREATE TRIGGER trg_bloquear_habitacion_mantenimiento
@@ -84,7 +45,7 @@ BEGIN
 END$$
 
 DELIMITER ;
---  6. LIBERAR HABITACIÓN POR MANTENIMIENTO
+--  4. LIBERAR HABITACIÓN POR MANTENIMIENTO
 DELIMITER $$
 
 CREATE TRIGGER trg_liberar_habitacion_mantenimiento
@@ -99,7 +60,7 @@ BEGIN
 END$$
 
 DELIMITER ;
---  7. CALCULAR SUBTOTAL SERVICIO
+--  5. CALCULAR SUBTOTAL SERVICIO
 DELIMITER $$
 
 CREATE TRIGGER trg_calcular_subtotal_servicio
@@ -116,26 +77,7 @@ BEGIN
 END$$
 
 DELIMITER ;
---  8. CALCULAR TOTAL RESERVACIÓN
-DELIMITER $$
-
-CREATE TRIGGER trg_calcular_total_reservacion
-BEFORE INSERT ON reservacion
-FOR EACH ROW
-BEGIN
-    DECLARE precio_hab DECIMAL(10,2);
-    DECLARE noches INT;
-
-    SELECT precio INTO precio_hab
-    FROM habitacion
-    WHERE num_habitacion = NEW.num_habitacion;
-
-    SET noches = DATEDIFF(NEW.fecha_fin, NEW.fecha_inicio);
-    SET NEW.precio = noches * precio_hab;
-END$$
-
-DELIMITER ;
---  9. VALIDAR ESTADO HABITACIÓN EN MANTENIMIENTO
+--  6. VALIDAR ESTADO HABITACIÓN EN MANTENIMIENTO
 DELIMITER $$
 
 CREATE TRIGGER trg_validar_estado_habitacion_mantenimiento
@@ -155,7 +97,7 @@ BEGIN
 END$$
 
 DELIMITER ;
--- 10. VALIDAR ROL CON EMPLEADO
+-- 7. VALIDAR ROL CON EMPLEADO
 DELIMITER $$
 
 CREATE TRIGGER trg_validar_rol_usuario

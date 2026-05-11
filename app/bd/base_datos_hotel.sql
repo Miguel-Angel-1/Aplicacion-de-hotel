@@ -278,11 +278,11 @@ INSERT INTO solicita(id_reservacion,id_servicio,subtotal,fecha,cantidad) VALUES
 (13,13,90,'2026-05-23',1),
 (14,14,110,'2026-05-24',1),
 (15,15,130,'2026-05-25',1),
-(16,16,75,'2026-05-26',1),
-(17,17,85,'2026-05-27',1),
-(18,18,140,'2026-05-28',1),
-(19,19,160,'2026-05-29',1),
-(20,20,90,'2026-05-30',1);
+(16,1,75,'2026-05-26',1),
+(17,2,85,'2026-05-27',1),
+(18,3,140,'2026-05-28',1),
+(19,4,160,'2026-05-29',1),
+(20,5,90,'2026-05-30',1);
 
 INSERT INTO bitacora (usuario, accion, tabla_afectada, descripcion) VALUES 
 ('gerente', 'INSERT', 'empleado', 'Se registró empleado Juan Pérez'),
